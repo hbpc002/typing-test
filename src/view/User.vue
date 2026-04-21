@@ -90,7 +90,6 @@ watch(
     });
     getSuggestByUserId({ id: String(state.paramsId) }).then((res) => {
       const userSuggestInfo = res.data?.result?.suggest;
-      console.log('userSuggestInfo', userSuggestInfo);
       state.suggestList = userSuggestInfo.filter((item: any) => !item.isTheme);
       state.themeList = userSuggestInfo.filter((item: any) => item.isTheme);
     });

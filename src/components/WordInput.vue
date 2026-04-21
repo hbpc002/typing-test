@@ -2,8 +2,6 @@
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, unref, watch } from 'vue';
 import { KEY_CODE_ENUM } from '@/config/key';
 import { useScroll } from '@vueuse/core';
-// @ts-ignore
-import cloneDeep from 'lodash/cloneDeep';
 import {
   type IWebsocketTypingInfo,
   type SentenceArrItem,
@@ -13,6 +11,10 @@ import {
 
 // common
 import { replacePunctuationWithSpace } from '@/common/string';
+
+// composables
+import { useTypingChartSampler } from '@/composables/use-typing-chart-sampler';
+import { useProgressInfo } from '@/composables/use-progress-info';
 
 const LINE_HEIGHT = 70;
 const el = ref<HTMLElement | null>(null);
@@ -54,15 +56,17 @@ const state = reactive({
   quoteArr: [] as SentenceArrItem[],
   isTyping: false,
   timeout: null as null | number,
-  interval: null as null | number,
   startTime: 0,
   typingRecordRealTime: [] as TypingRecordItemType[], // 记录实时输入的字符
   typingRecord: {} as TypingRecordType, // 每 100ms 记录一次 typingRecordRealTime
-  typingFinalWordsAccuracyRecord: {} as number[], // 实时记录输入的字符的准确度，composition 状态下的不记录
-  typingFinalWordsSpeedRecord: {} as number[], // 实时记录输入的字符的速度，composition 状态下的不记录
   wrongLength: 0,
   wordLength: 0,
   currentComposition: '' // 当处于 isComposing 状态时输入的字符
+});
+
+const chartSampler = useTypingChartSampler({
+  wordLength: () => state.wordLength,
+  wrongLength: () => state.wrongLength
 });
 
 onMounted(async () => {
@@ -72,93 +76,12 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  clear();
+  chartSampler.stop();
 });
 
-/**
- * 将 props.progressInfo 由这样的结构
- * {
- *     "1234": {
- *         "len": 9,
- *         "accuracy": "89%"
- *     },
- *     "阿斯蒂芬": {
- *         "len": 4,
- *         "accuracy": "75%"
- *     }
- * }
- * 转为
- * {
- *     9: [{
- *         "name": "1234",
- *         "accuracy": "89%"
- *     }],
- *     4: [{
- *         "len": "阿斯蒂芬",
- *         "accuracy": "75%"
- *     }]
- * }
- *
- * 这里将后面的 value 定义为数组，是因为 key 是 len 数字，可能同一个数字下会对应多个用户的输入，比如
- * {
- *     3: [
- *         {
- *             "name": "1341234",
- *             "accuracy": "100%"
- *         },
- *         {
- *             "name": "阿斯蒂芬阿斯蒂芬阿斯蒂芬",
- *             "accuracy": "67%"
- *         }
- *     ]
- * }
- */
-const progressInfoComputed = computed<Record<number, any>>(() => {
-  const transformed: Record<number, any> = {};
-
-  if (!props.progressInfo) {
-    return transformed;
-  }
-  for (const [key, value] of Object.entries(props.progressInfo)) {
-    const len = value.len;
-    const name = key;
-    const accuracy = value.accuracy;
-    const color = value.color;
-
-    if (transformed[len]) {
-      transformed[len].push({ name, accuracy, color });
-    } else {
-      transformed[len] = [{ name, accuracy, color }];
-    }
-  }
-  return transformed;
-});
-
-/**
- *
- */
-const progressInfoKeys = computed(() => {
-  const keys = Object.keys(progressInfoComputed.value);
-  return keys.map(Number);
-});
-
-// watch(
-//   () => progressInfoKeys.value,
-//   (val) => {
-//     if (props.isShowProgress) {
-//       console.log('----------', 'val', val, '----------cyy log');
-//       console.log(
-//         '----------',
-//         'progressInfoComputed',
-//         progressInfoComputed.value,
-//         '----------cyy log'
-//       );
-//     }
-//   },
-//   {
-//     deep: true
-//   }
-// );
+const { grouped: progressInfoComputed, keys: progressInfoKeys } = useProgressInfo(
+  computed(() => props.progressInfo)
+);
 
 watch(
   () => {
@@ -269,7 +192,10 @@ watch(
       return;
     }
     const relativeTime = new Date().getTime() - state.startTime;
-    state.typingRecord[Math.floor(relativeTime / 100)] = cloneDeep(state.typingRecordRealTime);
+    state.typingRecord[Math.floor(relativeTime / 100)] = state.typingRecordRealTime.map((item) => ({
+      ...item,
+      wrongPos: item.wrongPos ? [...item.wrongPos] : item.wrongPos
+    }));
   },
   {
     deep: true
@@ -283,8 +209,7 @@ watch(
       // 开始输入
       emit('is-typing');
       state.startTime = new Date().getTime();
-      console.log('----------', '1', 1, '----------cyy log');
-      setChartData();
+      chartSampler.start();
     } else {
       state.startTime = 0;
     }
@@ -393,60 +318,9 @@ watch(
   }
 );
 
-function setChartData() {
-  // 图标需要的数据
-  state.typingFinalWordsAccuracyRecord = [];
-  state.typingFinalWordsSpeedRecord = [];
-  let relativeTime = 0;
-  state.interval = setInterval(() => {
-    if (state.wordLength) {
-      state.typingFinalWordsAccuracyRecord.push(
-        Math.round(((state.wordLength - state.wrongLength) / state.wordLength) * 100)
-      );
-    } else {
-      state.typingFinalWordsAccuracyRecord.push(0);
-    }
-    if (relativeTime) {
-      console.log('----------', 'state.wordLength', state.wordLength, '----------cyy log');
-      console.log('----------', 'state.wrongLength', state.wrongLength, '----------cyy log');
-      console.log(
-        '----------',
-        'speed',
-        (state.wordLength - state.wrongLength) / relativeTime,
-        '----------cyy log'
-      );
-      state.typingFinalWordsSpeedRecord.push(
-        Math.round(((state.wordLength - state.wrongLength) / relativeTime) * 60)
-      );
-    } else {
-      state.typingFinalWordsSpeedRecord = [0];
-    }
-    relativeTime++;
-  }, 1000);
-}
-
 function typingEnd() {
   // 用这个组件的地方结束的时候要通过这里通知里面结束了。
-  console.log(
-    '----------',
-    'typingFinalWordsAccuracyRecord',
-    state.typingFinalWordsAccuracyRecord,
-    '----------cyy log'
-  );
-  console.log(
-    '----------',
-    'typingFinalWordsSpeedRecord',
-    state.typingFinalWordsSpeedRecord,
-    '----------cyy log'
-  );
-  clear();
-}
-
-function clear() {
-  if (state.interval) {
-    clearInterval(state.interval);
-    state.interval = null;
-  }
+  chartSampler.stop();
 }
 
 function reset() {
@@ -602,8 +476,8 @@ function getTypingRecord() {
 
 function getTypingChartRecord() {
   return {
-    accuracy: state.typingFinalWordsAccuracyRecord,
-    speed: state.typingFinalWordsSpeedRecord
+    accuracy: chartSampler.accuracyRecord.value,
+    speed: chartSampler.speedRecord.value
   };
 }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, provide, onMounted, ref, nextTick } from 'vue';
+import { reactive, provide, onMounted, onBeforeUnmount, ref, nextTick } from 'vue';
 import { KEY_CODE_ENUM } from '@/config/key';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -111,6 +111,13 @@ onMounted(() => {
   document.addEventListener('keyup', handleKeyUp);
   document.addEventListener('wheel', handleWheel);
   document.addEventListener('mousemove', handleMouseMove);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleKeyDown);
+  document.removeEventListener('keyup', handleKeyUp);
+  document.removeEventListener('wheel', handleWheel);
+  document.removeEventListener('mousemove', handleMouseMove);
 });
 
 function handleKeyDown(e: KeyboardEvent) {

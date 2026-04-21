@@ -1,27 +1,15 @@
-import TimeLimit from '@/view/TimeLimit.vue';
-import WordsLimit from '@/view/WordsLimit.vue';
-import QuoteLimit from '@/view/QuoteLimit.vue';
-import TypingKeyboard from '@/view/TypingKeyboard.vue';
-import CustomPage from '@/view/CustomPage.vue';
-import User from '@/view/User.vue';
-import Log from '@/view/Log.vue';
-import StatementLog from '@/view/StatementLog.vue';
-import LeaderBoard from '@/view/LeaderBoard.vue';
-import Game from '@/view/Game.vue';
-import GameRoom from '@/view/GameRoom.vue';
-
 export default [
-  { path: '/', name: 'TimeLimit', component: TimeLimit },
-  { path: '/words', name: 'WordsLimit', component: WordsLimit },
-  { path: '/quote', name: 'QuoteLimit', component: QuoteLimit },
-  { path: '/keyboard', name: 'TypingKeyboard', component: TypingKeyboard },
-  { path: '/custom', name: 'Custom', component: CustomPage },
-  { path: '/user/:id', name: 'User', component: User },
-  { path: '/log', name: 'Log', component: Log },
-  { path: '/statement', name: 'statement', component: StatementLog },
-  { path: '/leaderboard', name: 'LeaderBoard', component: LeaderBoard },
-  { path: '/game', name: 'Game', component: Game },
-  { path: '/game/:id', name: 'GameRoom', component: GameRoom },
+  { path: '/', name: 'TimeLimit', component: () => import('@/view/TimeLimit.vue') },
+  { path: '/words', name: 'WordsLimit', component: () => import('@/view/WordsLimit.vue') },
+  { path: '/quote', name: 'QuoteLimit', component: () => import('@/view/QuoteLimit.vue') },
+  { path: '/keyboard', name: 'TypingKeyboard', component: () => import('@/view/TypingKeyboard.vue') },
+  { path: '/custom', name: 'Custom', component: () => import('@/view/CustomPage.vue') },
+  { path: '/user/:id', name: 'User', component: () => import('@/view/User.vue') },
+  { path: '/log', name: 'Log', component: () => import('@/view/Log.vue') },
+  { path: '/statement', name: 'statement', component: () => import('@/view/StatementLog.vue') },
+  { path: '/leaderboard', name: 'LeaderBoard', component: () => import('@/view/LeaderBoard.vue') },
+  { path: '/game', name: 'Game', component: () => import('@/view/Game.vue') },
+  { path: '/game/:id', name: 'GameRoom', component: () => import('@/view/GameRoom.vue') },
   {
     path: '/:catchAll(.*)',
     redirect: '/'

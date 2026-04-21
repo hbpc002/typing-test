@@ -40,7 +40,6 @@ const handleKeyDown = (e: KeyboardEvent) => {
   }
 
   if (!state.keysPressed[code]) {
-    console.log('----------', 'handleKeyDown', e, '----------cyy log');
     configStore.setCurrentCode(e.code);
     state.keysPressed[code] = true;
     state.currentCode = code;
@@ -48,7 +47,6 @@ const handleKeyDown = (e: KeyboardEvent) => {
 };
 
 const handleKeyUp = (e: KeyboardEvent) => {
-  console.log('----------', 'handleKeyUp', e, '----------cyy log');
   state.keysPressed[e.code] = false;
   state.currentCode = '';
 };

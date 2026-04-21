@@ -219,7 +219,7 @@ async function getList() {
       }
     }
   } catch (e) {
-    console.log('----------', 'e', e, '----------cyy log');
+    console.error('handle ready info failed', e);
   }
 }
 
@@ -307,89 +307,26 @@ function startWs(
   // 连接关闭时的事件
   state.ws.onclose = function (e: CloseEvent) {
     console.log('WebSocket 连接已关闭！', e.code);
-    if (e.code === 3001) {
-      // 没有这个房间哦，请重新创建。
-      confirm({
-        title: e.reason,
-        ok: '去创建房间',
-        confirmClose: () => {
-          router.replace({
-            name: 'Game'
-          });
-          return true;
-        },
-        confirm: () => {
-          router.replace({
-            name: 'Game'
-          });
-          return true;
-        }
-      });
-      return;
-    }
-    if (e.code === 3000 && !state.isOwner) {
-      confirm({
-        title: e.reason,
-        ok: '去创建房间',
-        confirmClose: () => {
-          router.replace({
-            name: 'Game'
-          });
-          return true;
-        },
-        confirm: () => {
-          router.replace({
-            name: 'Game'
-          });
-          return true;
-        }
-      });
-      return;
-    }
-    if (e.code === 3002) {
-      // 房间人数已满，请加入其他房间或者重新创建。
-      confirm({
-        title: e.reason,
-        ok: '去创建房间',
-        confirmClose: () => {
-          router.replace({
-            name: 'Game'
-          });
-          return true;
-        },
-        confirm: () => {
-          router.replace({
-            name: 'Game'
-          });
-          return true;
-        }
-      });
-      return;
-    }
     if (e.code === 3003) {
       // 超时关闭
       location.reload();
       return;
     }
-    if (e.code === 3005) {
-      // 被踢了
+    // 3001 房间不存在 / 3000 房主关闭 / 3002 满员 / 3005 被踢，统一跳回创建页
+    const redirectCodes = [3001, 3002, 3005];
+    const shouldRedirect =
+      redirectCodes.includes(e.code) || (e.code === 3000 && !state.isOwner);
+    if (shouldRedirect) {
+      const goGame = () => {
+        router.replace({ name: 'Game' });
+        return true;
+      };
       confirm({
         title: e.reason,
         ok: '去创建房间',
-        confirmClose: () => {
-          router.replace({
-            name: 'Game'
-          });
-          return true;
-        },
-        confirm: () => {
-          router.replace({
-            name: 'Game'
-          });
-          return true;
-        }
+        confirmClose: goGame,
+        confirm: goGame
       });
-      return;
     }
   };
   // 连接出错时的事件

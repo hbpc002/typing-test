@@ -175,7 +175,6 @@ function getRandomNonRepeatingElement(arr: any[]) {
 }
 
 function selectTime(time: number) {
-  console.log('选择的时间：', time);
   state.selectTime = time;
   state.isTyping = false;
   if (id) {

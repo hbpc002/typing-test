@@ -4,21 +4,25 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import svgLoader from 'vite-svg-loader';
-import legacy from '@vitejs/plugin-legacy';
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [
-    vue(),
-    vueJsx(),
-    svgLoader(),
-    legacy({
-      targets: ['defaults', 'not IE 11'], // 指定兼容的浏览器范围
-      additionalLegacyPolyfills: ['regenerator-runtime/runtime'] // 如果需要，添加额外的 polyfills
-    })
-  ],
+export default defineConfig(({ mode }) => ({
+  plugins: [vue(), vueJsx(), svgLoader()],
+  esbuild: {
+    drop: mode === 'production' ? ['console', 'debugger'] : []
+  },
   build: {
-    target: 'es2015' // 指定构建目标为 ES2015，以兼容更多浏览器
+    target: 'es2020',
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vue: ['vue', 'vue-router', 'pinia', 'vue-i18n'],
+          echarts: ['echarts', 'vue-echarts'],
+          utils: ['axios', 'dayjs', 'nanoid', 'js-cookie', 'markdown-it', 'pinyin-pro']
+        }
+      }
+    }
   },
   resolve: {
     alias: {
@@ -42,4 +46,4 @@ export default defineConfig({
       }
     }
   }
-});
+}));
