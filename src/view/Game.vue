@@ -24,7 +24,6 @@ import IcoFilter from '@/assets/svg/filter.svg';
 import { base64ToString, stringToBase64 } from '@/common/string';
 
 // stores
-// import { storeToRefs } from 'pinia';
 import { useGameStore } from '@/store/game';
 
 // types
@@ -36,7 +35,6 @@ import { userProfileDeferred, configDeferred } from '@/utils/defer';
 const { userName, isLogin } = useUser();
 
 const gameStore = useGameStore();
-// const { setting } = storeToRefs(gameStore);
 const confirm: any = inject('confirm');
 
 const router = useRouter();

@@ -179,15 +179,6 @@ function changeFont() {
   obj.showChangeFontModal = true;
 }
 
-// function preloadFont(url: string) {
-//   const link = document.createElement('link');
-//   link.rel = 'preload';
-//   link.as = 'font';
-//   link.href = url;
-//   link.crossOrigin = '';
-//   document.head.appendChild(link);
-// }
-
 function listenFont(name: string) {
   if (name === 'default') {
     showMessage({ message: '默认字体加载成功！' });

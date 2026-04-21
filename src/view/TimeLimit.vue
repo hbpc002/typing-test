@@ -24,6 +24,7 @@ import IcoSetting from '@/assets/svg/setting.svg';
 import IcoChange from '@/assets/svg/change.svg';
 import YInput from '@/components/ui/Input.vue';
 import { handleChart } from '@/common/chart';
+import { getRandomNonRepeatingElement } from '@/utils/common';
 
 const router = useRouter();
 
@@ -42,7 +43,6 @@ const state = reactive({
   showSetTime: false,
   isSpaceType: false,
   quote: {} as any,
-  lastIndex: -1,
   selectTime: 15 as number, // 设置的倒计时
   showCountDown: true,
   countDown: null as null | number, // 实时倒计时
@@ -154,24 +154,6 @@ watch(
 function refresh() {
   state.isTyping = false;
   state.quote = getRandomNonRepeatingElement(Object.values(Sentence.long));
-}
-
-function getRandomNonRepeatingElement(arr: any[]) {
-  if (arr.length === 0) {
-    return null;
-  }
-  if (arr.length === 1) {
-    return arr[0];
-  }
-
-  let randomIndex: number = state.lastIndex;
-
-  while (randomIndex === state.lastIndex) {
-    randomIndex = Math.floor(Math.random() * arr.length);
-  }
-
-  state.lastIndex = randomIndex;
-  return arr[randomIndex];
 }
 
 function selectTime(time: number) {

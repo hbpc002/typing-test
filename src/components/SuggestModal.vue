@@ -51,10 +51,6 @@ const state = reactive({
 
 const emit = defineEmits(['openThemeModal']);
 
-// onMounted(() => {
-//   getSuggestList();
-// });
-
 watch(
   () => state.show,
   (show) => {

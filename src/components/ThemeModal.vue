@@ -93,60 +93,24 @@ watch(
   }
 );
 
-watch(
-  () => state.mainColor,
-  (val) => {
-    setCustomCssValue('--main-color', val);
-  }
-);
-watch(
-  () => state.mainRedColor,
-  (val) => {
-    setCustomCssValue('--main-red', val);
-  }
-);
-watch(
-  () => state.backgroundGrayColor,
-  (val) => {
-    setCustomCssValue('--background-gray', val);
-  }
-);
-watch(
-  () => state.layoutBackgroundGrayColor,
-  (val) => {
-    setCustomCssValue('--layout-background-gray', val);
-  }
-);
-watch(
-  () => state.gray08Color,
-  (val) => {
-    setCustomCssValue('--gray-08', val);
-  }
-);
-watch(
-  () => state.gray06Color,
-  (val) => {
-    setCustomCssValue('--gray-06', val);
-  }
-);
-watch(
-  () => state.gray04Color,
-  (val) => {
-    setCustomCssValue('--gray-04', val);
-  }
-);
-watch(
-  () => state.gray02Color,
-  (val) => {
-    setCustomCssValue('--gray-02', val);
-  }
-);
-watch(
-  () => state.labelWhiteColor,
-  (val) => {
-    setCustomCssValue('--label-white', val);
-  }
-);
+const COLOR_CSS_VAR_MAP = {
+  mainColor: '--main-color',
+  mainRedColor: '--main-red',
+  backgroundGrayColor: '--background-gray',
+  layoutBackgroundGrayColor: '--layout-background-gray',
+  gray08Color: '--gray-08',
+  gray06Color: '--gray-06',
+  gray04Color: '--gray-04',
+  gray02Color: '--gray-02',
+  labelWhiteColor: '--label-white'
+} as const;
+
+(Object.keys(COLOR_CSS_VAR_MAP) as Array<keyof typeof COLOR_CSS_VAR_MAP>).forEach((key) => {
+  watch(
+    () => state[key],
+    (val) => setCustomCssValue(COLOR_CSS_VAR_MAP[key], val)
+  );
+});
 
 const replyName = computed(() => {
   if (profile.value?.userName) {
