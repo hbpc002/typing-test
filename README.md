@@ -7,6 +7,11 @@
 
 整个项目包含前端和后端，前端 Vue3 + Vite，后端使用 Koa2 + [Leancloud](https://leancloud.cn)。该项目是前端部分，后端也将在未来开源。
 
+### 2026.04.21
+- 工程优化：路由懒加载、构建分包（vue / echarts / utils）、生产环境自动 drop console。
+- 移除未使用依赖（lodash、@vitejs/plugin-legacy）与重复字体大文件，构建体积与时间均显著减小。
+- 抽离 `useTypingChartSampler`、`useProgressInfo` composable，简化 `WordInput.vue`；修复 `App.vue` 全局事件监听未解绑问题。
+- 合并 `ThemeModal` 9 个冗余 watch；`chart.ts` 合并 `localStorage` 读写。
 ### 2025.03.11
 - 提供传统浏览器兼容性支持
 ### 2024.12.25
