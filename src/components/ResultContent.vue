@@ -332,39 +332,20 @@ const getTypingContentAtTime = (time: number) => {
   }
   return '';
 };
-const accuracyTooltipFormatter = (params: any[]) => {
-  debugger;
-  const time = params[0].dataIndex;
-  let result = `${time} ${t('sec')}<br/>`;
-  
-  // 添加准确率数据
-  params.forEach(param => {
-    result += `${param.seriesName}: ${param.value}%<br/>`;
-  });
-  // 添加这一秒的打字内容（如果当前秒没有输入，则显示上一秒的内容）
-  const typingContent = getTypingContentAtTime(time);
-  if (typingContent) {
-    result += `${t('typing_content')}: ${typingContent}`;
-  }
-  
-  return result;
-};
-const speedTooltipFormatter = (params: any[]) => {
-  const time = params[0].dataIndex;
-  let result = `${time} ${t('sec')}<br/>`;
-  
-  // 添加速度数据
-  params.forEach(param => {
-    result += `${param.seriesName}: ${param.value} ${t('wpm')}<br/>`;
-  });
-  // 添加这一秒的打字内容（如果当前秒没有输入，则显示上一秒的内容）
-  const typingContent = getTypingContentAtTime(time);
-  if (typingContent) {
-    result += `${t('typing_content')}: ${typingContent}`;
-  }
-  
-  return result;
-};
+function buildTooltipFormatter(unit: string) {
+  return (params: any[]) => {
+    const time = params[0].dataIndex;
+    const lines = [`${time} ${t('sec')}`];
+    params.forEach((p) => lines.push(`${p.seriesName}: ${p.value}${unit}`));
+    const typingContent = getTypingContentAtTime(time);
+    if (typingContent) {
+      lines.push(`${t('typing_content')}: ${typingContent}`);
+    }
+    return lines.join('<br/>');
+  };
+}
+const accuracyTooltipFormatter = buildTooltipFormatter('%');
+const speedTooltipFormatter = buildTooltipFormatter(` ${t('wpm')}`);
 </script>
 <template>
   <div class="y-result-content__info flex-center">

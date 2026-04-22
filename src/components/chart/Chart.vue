@@ -89,11 +89,12 @@ onMounted(() => {
       className: 'y-chart__tooltip',
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
       borderColor: 'rgba(0, 0, 0, 0.8)',
+      extraCssText: 'max-width: 360px; white-space: normal; word-break: break-all;',
       textStyle: {
-        color: '#fff'
+        color: '#fff',
+        lineHeight: 20
       },
-      formatter: props.tooltipFormatter || undefined 
-      // formatter: '{a0}: {b0} {c0} <br>{a1}: {b1} {c1} '
+      formatter: props.tooltipFormatter || undefined
     },
     // visualMap: {
     //   show: false,

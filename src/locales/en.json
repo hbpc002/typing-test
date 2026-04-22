@@ -57,6 +57,7 @@
     "wpm": "WPM",
     "accuracy_curve": "Accuracy Curve",
     "speed_curve": "Speed Curve",
+    "typing_content": "Input",
     "speed_unit": "Speed (WPM)",
     "accuracy_unit": "Accuracy (%)",
     "sentence": {
