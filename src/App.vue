@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { reactive, provide, onMounted, onBeforeUnmount, ref, nextTick } from 'vue';
+import { reactive, provide, onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
 import { KEY_CODE_ENUM } from '@/config/key';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 // @ts-ignore
 import FontFaceObserver from 'fontfaceobserver';
@@ -56,7 +56,20 @@ userStore.setProfile();
 userStore.setConfig();
 const useConfig = useConfigStore();
 const router = useRouter();
+const route = useRoute();
 const { locale, t } = useI18n();
+
+const gameVisited = ref(!!(YStorage.get('Y_STORAGE') || {}).gameVisited);
+watch(
+  () => route.name,
+  (name) => {
+    if ((name === 'Game' || name === 'GameRoom') && !gameVisited.value) {
+      gameVisited.value = true;
+      YStorage.set('Y_STORAGE', { ...(YStorage.get('Y_STORAGE') || {}), gameVisited: true });
+    }
+  },
+  { immediate: true }
+);
 
 const { config } = storeToRefs(userStore);
 const { onlyShowMain, capsLockOn } = storeToRefs(useConfig);
@@ -260,9 +273,7 @@ function changeLocale() {
   } else {
     locale.value = 'zh';
   }
-  YStorage.set('Y_STORAGE', {
-    locale: locale.value
-  });
+  YStorage.set('Y_STORAGE', { ...(YStorage.get('Y_STORAGE') || {}), locale: locale.value });
 }
 </script>
 
@@ -279,7 +290,7 @@ function changeLocale() {
   </div>
   <div class="y-mobile-show">
     <div class="y-info" :class="[onlyShowMain ? 'y-info__disabled' : '']">
-      <a href="/" class="y-info__title main-color">Typing</a>
+      <a href="/" class="y-info__title main-color"><span class="y-info__cap">T</span>yping</a>
     </div>
     <h1>一个简约风格的可自定义主题、可切换字体的打字记录和键盘测试网站。</h1>
     <h2>欢迎使用电脑端访问该页面，体验 Typing 的更多功能！</h2>
@@ -291,7 +302,7 @@ function changeLocale() {
   <div class="y-app">
     <header>
       <div class="y-info" :class="[onlyShowMain ? 'y-info__disabled' : '']">
-        <a href="/" class="y-info__title main-color">Typing</a>
+        <a href="/" class="y-info__title main-color"><span class="y-info__cap">T</span>yping</a>
       </div>
 
       <Transition name="menu">
@@ -301,7 +312,8 @@ function changeLocale() {
             class="y-menu__item"
             :class="{
               'y-menu__item--active': $route.name === 'Game' || $route.name === 'GameRoom',
-              'y-menu__item--blink': $route.name !== 'Game' && $route.name !== 'GameRoom'
+              'y-menu__item--blink':
+                !gameVisited && $route.name !== 'Game' && $route.name !== 'GameRoom'
             }"
             >{{ $t('game_mode') }}</router-link
           >
@@ -345,54 +357,59 @@ function changeLocale() {
 
     <Transition name="menu">
       <footer v-show="!onlyShowMain" class="flex-center">
-        <a
-          class="flex-center--y y-app__footer"
-          href="https://github.com/YasinChan/typing"
-          target="_blank"
-        >
-          <IcoGithub></IcoGithub>
-          <span>{{ $t('source_code') }}</span>
-        </a>
-        <a
-          class="flex-center--y y-app__footer"
-          href="https://yasinchan.com/tags/typing/"
-          target="_blank"
-        >
-          <IcoDocument></IcoDocument>
-          <span>{{ $t('technology') }}</span>
-        </a>
-        <a
-          class="flex-center--y y-app__footer"
-          href="https://www.bilibili.com/video/BV1ci4y1s73q"
-          target="_blank"
-        >
-          <IcoIntroduce></IcoIntroduce>
-          <span>{{ $t('introduction') }}</span>
-        </a>
-        <router-link to="/statement" class="flex-center--y cursor-pointer y-app__footer">
-          <IcoStatement></IcoStatement>
-          <span>{{ $t('statement') }}</span>
-        </router-link>
-        <router-link to="/log" class="flex-center--y cursor-pointer y-app__footer">
-          <IcoLog></IcoLog>
-          <span>{{ $t('log') }}</span>
-        </router-link>
-        <span class="flex-center--y cursor-pointer y-app__footer" @click="changeTheme('normal')">
-          <IcoTheme></IcoTheme>
-          <span>{{ $t('theme') }}</span>
-        </span>
-        <span class="flex-center--y cursor-pointer y-app__footer" @click="changeFont">
-          <IcoFont></IcoFont>
-          <span>{{ $t('font') }}</span>
-        </span>
-        <span class="flex-center--y cursor-pointer y-app__footer" @click="suggestClick">
-          <IcoMessage></IcoMessage>
-          <span>{{ $t('suggestions_and_feedback') }}</span>
-        </span>
-        <span class="flex-center--y cursor-pointer y-app__footer" @click="obj.showDonate = true">
-          <IcoDonate></IcoDonate>
-          <span>{{ $t('appreciate') }}</span>
-        </span>
+        <div class="y-app__footer-group">
+          <a
+            class="flex-center--y y-app__footer"
+            href="https://github.com/YasinChan/typing"
+            target="_blank"
+          >
+            <IcoGithub></IcoGithub>
+            <span>{{ $t('source_code') }}</span>
+          </a>
+          <a
+            class="flex-center--y y-app__footer"
+            href="https://yasinchan.com/tags/typing/"
+            target="_blank"
+          >
+            <IcoDocument></IcoDocument>
+            <span>{{ $t('technology') }}</span>
+          </a>
+          <a
+            class="flex-center--y y-app__footer"
+            href="https://www.bilibili.com/video/BV1ci4y1s73q"
+            target="_blank"
+          >
+            <IcoIntroduce></IcoIntroduce>
+            <span>{{ $t('introduction') }}</span>
+          </a>
+          <router-link to="/statement" class="flex-center--y cursor-pointer y-app__footer">
+            <IcoStatement></IcoStatement>
+            <span>{{ $t('statement') }}</span>
+          </router-link>
+          <router-link to="/log" class="flex-center--y cursor-pointer y-app__footer">
+            <IcoLog></IcoLog>
+            <span>{{ $t('log') }}</span>
+          </router-link>
+        </div>
+        <div class="y-app__footer-divider"></div>
+        <div class="y-app__footer-group">
+          <span class="flex-center--y cursor-pointer y-app__footer" @click="changeTheme('normal')">
+            <IcoTheme></IcoTheme>
+            <span>{{ $t('theme') }}</span>
+          </span>
+          <span class="flex-center--y cursor-pointer y-app__footer" @click="changeFont">
+            <IcoFont></IcoFont>
+            <span>{{ $t('font') }}</span>
+          </span>
+          <span class="flex-center--y cursor-pointer y-app__footer" @click="suggestClick">
+            <IcoMessage></IcoMessage>
+            <span>{{ $t('suggestions_and_feedback') }}</span>
+          </span>
+          <span class="flex-center--y cursor-pointer y-app__footer" @click="obj.showDonate = true">
+            <IcoDonate></IcoDonate>
+            <span>{{ $t('appreciate') }}</span>
+          </span>
+        </div>
       </footer>
     </Transition>
   </div>
@@ -549,10 +566,10 @@ main,
 }
 footer {
   font-size: 14px;
-  a,
-  > span {
-    margin-right: 20px;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
   svg {
     width: 14px;
     height: 14px;
@@ -562,6 +579,17 @@ footer {
   span {
     color: $gray-02;
   }
+}
+.y-app__footer-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.y-app__footer-divider {
+  width: 1px;
+  height: 14px;
+  background: $gray-02;
+  opacity: 0.5;
 }
 .y-app__caps-lock {
   position: fixed;
@@ -601,6 +629,22 @@ footer {
   font-weight: bold;
   font-size: 18px;
   line-height: 30px;
+}
+.y-info__cap {
+  display: inline-block;
+  min-width: 1em;
+  padding: 0 4px;
+  margin-right: 3px;
+  border: 1.5px solid currentColor;
+  border-radius: 4px;
+  line-height: 1.1;
+  text-align: center;
+  box-shadow: inset 0 -2px 0 0 currentColor;
+  transition: box-shadow 0.12s ease, transform 0.12s ease;
+}
+.y-info__title:hover .y-info__cap {
+  box-shadow: inset 0 0 0 0 currentColor;
+  transform: translateY(2px);
 }
 
 .y-menu {
@@ -649,7 +693,9 @@ footer {
       fill: $main-color;
     }
     &::after {
-      width: 30px;
+      width: 100%;
+      left: 0;
+      transform: none;
     }
   }
   &.y-menu__item-auth {

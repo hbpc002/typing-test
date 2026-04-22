@@ -25,7 +25,7 @@ const props = withDefaults(
 <template>
   <span ref="tooltipRef" class="tooltip">
     <Transition name="menu">
-      <div v-if="isHovered">
+      <div v-if="isHovered" class="tooltip__popover">
         <span v-if="content" class="tooltip__content">{{ content }}</span>
         <span v-if="html" class="tooltip__content" v-html="html"></span>
       </div>
@@ -37,6 +37,13 @@ const props = withDefaults(
 .tooltip {
   position: relative;
   display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+.tooltip__popover {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 .tooltip__content {
   position: absolute;

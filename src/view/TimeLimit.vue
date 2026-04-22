@@ -22,7 +22,10 @@ import type { TypingRecordType } from '@/types';
 // svg
 import IcoSetting from '@/assets/svg/setting.svg';
 import IcoChange from '@/assets/svg/change.svg';
+import IcoSelect from '@/assets/svg/select.svg';
+import IcoUnSelect from '@/assets/svg/un-select.svg';
 import YInput from '@/components/ui/Input.vue';
+import YDropDown from '@/components/ui/DropDown.vue';
 import { handleChart } from '@/common/chart';
 import { getRandomNonRepeatingElement } from '@/utils/common';
 
@@ -221,25 +224,6 @@ function reset() {
         <Transition name="menu">
           <div
             v-show="!onlyShowMain"
-            class="y-time-limit__setting-item y-time-limit__set-time"
-            :class="[state.showCountDown ? 'y-time-limit__time--active' : '']"
-            @click="state.showCountDown = !state.showCountDown"
-          >
-            {{ $t('display_countdown') }}
-          </div>
-        </Transition>
-        <Transition name="menu">
-          <div
-            v-show="!onlyShowMain"
-            class="y-time-limit__setting-item y-time-limit__set-time"
-            @click="changePunctuation"
-          >
-            {{ state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space') }}
-          </div>
-        </Transition>
-        <Transition name="menu">
-          <div
-            v-show="!onlyShowMain"
             class="y-time-limit__setting-item y-time-limit__refresh"
             @click="refresh"
           >
@@ -260,14 +244,6 @@ function reset() {
                 >{{ item }}</span
               >
             </Tooltip>
-            <Tooltip class="y-time-limit__time-svg" :content="$t('custom_countdown')">
-              <IcoSetting
-                :class="{
-                  'y-time-limit__time-item--active': !customTime.includes(state.selectTime)
-                }"
-                @click="state.showSetTime = true"
-              ></IcoSetting>
-            </Tooltip>
             <div
               class="y-time-limit__time-item"
               v-if="router.currentRoute?.value?.query?.id"
@@ -276,6 +252,41 @@ function reset() {
             >
               {{ $t('reset') }}
             </div>
+          </div>
+        </Transition>
+        <Transition name="menu">
+          <div v-show="!onlyShowMain" class="y-time-limit__setting-item y-time-limit__settings">
+            <YDropDown>
+              <template #title>
+                <Tooltip class="y-time-limit__time-svg" content="设置">
+                  <IcoSetting
+                    :class="{
+                      'y-time-limit__time-item--active': !customTime.includes(state.selectTime)
+                    }"
+                  ></IcoSetting>
+                </Tooltip>
+              </template>
+              <template #menu>
+                <div class="y-time-limit__settings-menu">
+                  <div
+                    class="y-time-limit__settings-item"
+                    @click="state.showCountDown = !state.showCountDown"
+                  >
+                    <component :is="state.showCountDown ? IcoSelect : IcoUnSelect" />
+                    <span>{{ $t('display_countdown') }}</span>
+                  </div>
+                  <div class="y-time-limit__settings-item" @click="changePunctuation">
+                    <component :is="state.isSpaceType ? IcoSelect : IcoUnSelect" />
+                    <span>{{
+                      state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space')
+                    }}</span>
+                  </div>
+                  <div class="y-time-limit__settings-item" @click="state.showSetTime = true">
+                    <span>{{ $t('custom_countdown') }}</span>
+                  </div>
+                </div>
+              </template>
+            </YDropDown>
           </div>
         </Transition>
       </div>
@@ -368,8 +379,11 @@ function reset() {
   left: 0;
   transform: translateY(-50%);
   color: $gray-04;
-  font-size: 22px;
+  font-size: 40px;
   font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  transition: color 0.2s ease;
   &.y-time-limit__count-down--active {
     color: $main-color;
   }
@@ -388,6 +402,29 @@ function reset() {
   }
   &.y-time-limit__time--active {
     color: $main-color;
+  }
+}
+.y-time-limit__settings-menu {
+  min-width: 160px;
+  padding: 6px 0;
+  font-size: 14px;
+}
+.y-time-limit__settings-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+  svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  &:hover {
+    background: $background-gray;
+    color: $gray-08;
   }
 }
 .y-time-limit__time {
