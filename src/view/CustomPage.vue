@@ -365,11 +365,14 @@ async function changePunctuation() {
 }
 .y-custom-page__start {
   position: absolute;
-  top: 50px;
+  top: 42px;
   left: 0;
   color: $gray-04;
-  font-size: 22px;
+  font-size: 40px;
   font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  transition: color 0.2s ease;
   &.y-custom-page__start--active {
     color: $main-color;
   }
