@@ -57,6 +57,7 @@
     "wpm": "字/分钟",
     "accuracy_curve": "准确率曲线",
     "speed_curve": "速度曲线",
+    "typing_content": "输入内容",
     "speed_unit": "速度（字/每分钟）",
     "accuracy_unit": "准确率（%）",
     "sentence": {
