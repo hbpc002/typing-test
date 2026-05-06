@@ -1,6 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /user/
-Disallow: /game/
 
 Sitemap: https://typing.yasinchan.com/sitemap.xml

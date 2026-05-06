@@ -52,7 +52,7 @@ export default [
     path: '/user/:id',
     name: 'User',
     component: () => import('@/view/User.vue'),
-    meta: { title: '个人主页 - Typing' }
+    meta: { title: '个人主页 - Typing', noindex: true }
   },
   {
     path: '/log',
@@ -96,7 +96,7 @@ export default [
     path: '/game/:id',
     name: 'GameRoom',
     component: () => import('@/view/GameRoom.vue'),
-    meta: { title: '比一比房间 - Typing' }
+    meta: { title: '比一比房间 - Typing', noindex: true }
   },
   {
     path: '/:catchAll(.*)',

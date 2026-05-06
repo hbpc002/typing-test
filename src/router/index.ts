@@ -21,9 +21,24 @@ function setMetaDescription(content: string) {
   el.setAttribute('content', content);
 }
 
+function setMetaRobots(noindex: boolean) {
+  let el = document.querySelector('meta[name="robots"]');
+  if (noindex) {
+    if (!el) {
+      el = document.createElement('meta');
+      el.setAttribute('name', 'robots');
+      document.head.appendChild(el);
+    }
+    el.setAttribute('content', 'noindex, nofollow');
+  } else if (el) {
+    el.parentNode?.removeChild(el);
+  }
+}
+
 router.afterEach((to) => {
   document.title = (to.meta?.title as string | undefined) || DEFAULT_TITLE;
   setMetaDescription((to.meta?.description as string | undefined) || DEFAULT_DESCRIPTION);
+  setMetaRobots(Boolean(to.meta?.noindex));
 });
 
 export default router;
