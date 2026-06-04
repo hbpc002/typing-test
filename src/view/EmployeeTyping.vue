@@ -247,9 +247,6 @@ function submitForm() {
 </template>
 
 <style scoped lang="scss">
-.y-exam {
-  max-width: 900px;
-}
 
 /* Form */
 .y-exam-form {
@@ -353,8 +350,8 @@ function submitForm() {
 
 /* Typing */
 .y-exam-typing {
-  .y-word-input__wrap,
-  .y-word-input {
+  :deep(.y-word-input__wrap),
+  :deep(.y-word-input) {
     height: 280px;
   }
 }
