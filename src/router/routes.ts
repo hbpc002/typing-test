@@ -1,6 +1,15 @@
 export default [
   {
     path: '/',
+    name: 'EmployeeTyping',
+    component: () => import('@/view/EmployeeTyping.vue'),
+    meta: {
+      title: '打字速度测试 - Typing',
+      description: '公司内部打字速度测试系统，记录和统计员工打字成绩。'
+    }
+  },
+  {
+    path: '/practice',
     name: 'TimeLimit',
     component: () => import('@/view/TimeLimit.vue'),
     meta: {
@@ -97,6 +106,28 @@ export default [
     name: 'GameRoom',
     component: () => import('@/view/GameRoom.vue'),
     meta: { title: '比一比房间 - Typing', noindex: true }
+  },
+  {
+    path: '/admin',
+    redirect: '/admin/login'
+  },
+  {
+    path: '/admin/login',
+    name: 'AdminLogin',
+    component: () => import('@/view/AdminLogin.vue'),
+    meta: { title: '管理员登录 - Typing', noindex: true }
+  },
+  {
+    path: '/admin/articles',
+    name: 'AdminArticles',
+    component: () => import('@/view/AdminArticles.vue'),
+    meta: { title: '文章管理 - Typing', noindex: true }
+  },
+  {
+    path: '/admin/scores',
+    name: 'AdminScores',
+    component: () => import('@/view/AdminScores.vue'),
+    meta: { title: '成绩查询 - Typing', noindex: true }
   },
   {
     path: '/:catchAll(.*)',

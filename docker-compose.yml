@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - PORT=8000
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - JWT_SECRET=${JWT_SECRET:-typing-jwt-secret-change-me}
+      - DB_PATH=/data/typing.db
+    volumes:
+      - typing-data:/data
+    networks:
+      - internal
+
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    restart: always
+    ports:
+      - "3001:443"
+    volumes:
+      - typing-ssl:/etc/nginx/ssl
+    depends_on:
+      - backend
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  typing-data:
+  typing-ssl:

@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -n fe,be -c cyan,green \"vite\" \"cd server && pnpm start\"",
+    "dev:fe": "vite",
+    "dev:be": "cd server && pnpm start",
     "build": "run-p type-check build-only",
     "preview": "vite preview",
     "build-only": "vite build",
@@ -43,6 +45,7 @@
     "@vue/tsconfig": "^0.4.0",
     "eslint": "^8.39.0",
     "eslint-plugin-vue": "^9.11.0",
+    "concurrently": "^8.2.2",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.8.8",
     "sass": "^1.63.6",

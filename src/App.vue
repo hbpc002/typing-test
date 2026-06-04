@@ -323,6 +323,7 @@ function changeLocale() {
           <router-link to="/custom" class="y-menu__item">{{ $t('custom_mode') }}</router-link>
           <a href="/keyboard" class="y-menu__item y-menu__keyboard-test">{{ $t('keyboard') }}</a>
           <router-link to="/leaderboard" class="y-menu__item">{{ $t('leaderboard') }}</router-link>
+          <router-link to="/admin" class="y-menu__item" style="opacity:0.6">管理</router-link>
           <YDropDown>
             <template #title>
               <div class="y-menu__item flex-center--y">

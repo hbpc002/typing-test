@@ -106,3 +106,73 @@ export const getWs = (params?: { id: string }) => {
 export const getWsById = (params?: { id: string }) => {
   return axios.get('/api/ws/by-id', { params });
 };
+
+// === Exam / Admin APIs ===
+
+export const adminLogin = (params: { password: string }) => {
+  return axios.post('/api/admin/login', params);
+};
+
+function authHeaders() {
+  const token = localStorage.getItem('admin_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export const getArticles = () => {
+  return axios.get('/api/articles');
+};
+
+export const getArticleById = (id: number) => {
+  return axios.get(`/api/articles/${id}`);
+};
+
+export const createArticle = (params: { title: string; author?: string; content: string; type?: string }) => {
+  return axios.post('/api/articles', params, { headers: authHeaders() });
+};
+
+export const updateArticle = (id: number, params: { title: string; author?: string; content: string; type?: string }) => {
+  return axios.put(`/api/articles/${id}`, params, { headers: authHeaders() });
+};
+
+export const deleteArticle = (id: number) => {
+  return axios.delete(`/api/articles/${id}`, { headers: authHeaders() });
+};
+
+export const saveRecord = (params: {
+  employee_name: string;
+  employee_group: string;
+  article_id: number;
+  article_title?: string;
+  wpm: number;
+  accuracy: string;
+  duration: number;
+  total_keystrokes?: number;
+  wrong_keystrokes?: number;
+  strict_wrong_count?: number;
+}) => {
+  return axios.post('/api/records', params);
+};
+
+export const getRecords = (params?: {
+  name?: string;
+  group?: string;
+  start_date?: string;
+  end_date?: string;
+  page?: number;
+  page_size?: number;
+}) => {
+  return axios.get('/api/records', { params });
+};
+
+export const exportRecords = (params?: {
+  name?: string;
+  group?: string;
+  start_date?: string;
+  end_date?: string;
+}) => {
+  return axios.get('/api/records/export', { params, headers: { ...authHeaders() }, responseType: 'blob' });
+};
+
+export const getStats = () => {
+  return axios.get('/api/records/stats', { headers: authHeaders() });
+};
