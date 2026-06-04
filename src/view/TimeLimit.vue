@@ -373,6 +373,9 @@ function reset() {
   .y-word-input {
     height: 280px;
   }
+  .y-word-input {
+    width: 100%;
+  }
 }
 .y-time-limit__setting {
   position: relative;

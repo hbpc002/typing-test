@@ -1,13 +1,27 @@
 <script setup lang="ts">
 import { reactive, ref, computed, nextTick, onMounted, watch, inject } from 'vue';
 import WordInput from '@/components/WordInput.vue';
+import Tooltip from '@/components/ui/Tooltip.vue';
+import YDropDown from '@/components/ui/DropDown.vue';
+import YInput from '@/components/ui/Input.vue';
+import YModal from '@/components/ui/Modal.vue';
 import { useExamStore } from '@/store/exam';
-import { getArticles, getArticleById, saveRecord } from '@/request';
+import { storeToRefs } from 'pinia';
+import { useConfigStore } from '@/store/config';
+import { getArticles, saveRecord } from '@/request';
 import type { TypingRecordType, TypingRecordItemType } from '@/types';
+
+import IcoSetting from '@/assets/svg/setting.svg';
+import IcoChange from '@/assets/svg/change.svg';
+import IcoSelect from '@/assets/svg/select.svg';
+import IcoUnSelect from '@/assets/svg/un-select.svg';
 
 const message: any = inject('message');
 const examStore = useExamStore();
+const useConfig = useConfigStore();
+const { currentFont, onlyShowMain } = storeToRefs(useConfig);
 const wordInputRef = ref<any>(null);
+const customTime = [15, 30, 60, 120];
 
 type Step = 'form' | 'select' | 'typing' | 'result';
 
@@ -21,6 +35,13 @@ const state = reactive({
   countDown: 60,
   intervalId: null as null | number,
   isTyping: false,
+  selectTime: 60,
+  isStrictMode: false,
+  isSpaceType: false,
+  showCountDown: true,
+  showSetTime: false,
+  setCountDown: '',
+  errorText: '',
   typingRecord: {} as TypingRecordType,
   totalWord: 0,
   wrongWord: 0,
@@ -39,6 +60,19 @@ watch(() => state.isTyping, (val) => {
         finishTyping();
       }
     }, 1000);
+  } else {
+    if (state.intervalId) {
+      clearInterval(state.intervalId);
+      state.intervalId = null;
+    }
+  }
+});
+
+watch(() => state.setCountDown, () => {
+  if (!/\d+/.test(Number(state.setCountDown))) {
+    state.errorText = '请输入数字';
+  } else {
+    state.errorText = '';
   }
 });
 
@@ -92,7 +126,7 @@ async function saveResult() {
       article_title: state.selectedArticle.title,
       wpm: state.wpm,
       accuracy: state.accuracy,
-      duration: 60,
+      duration: state.selectTime,
       total_keystrokes: state.totalKeystrokes,
       wrong_keystrokes: state.wrongKeystrokes,
       strict_wrong_count: state.strictWrongCount,
@@ -121,17 +155,57 @@ async function loadArticles() {
   }
 }
 
+async function refresh() {
+  state.isTyping = false;
+  state.countDown = state.selectTime || 60;
+  state.typingRecord = {};
+}
+
+function selectTime(time: number) {
+  state.countDown = time;
+  state.isTyping = false;
+}
+
+function isTypingFunc() {
+  state.isTyping = true;
+}
+
+function toggleStrictMode() {
+  if (state.isTyping) refresh();
+  state.isStrictMode = !state.isStrictMode;
+}
+
+async function changePunctuation() {
+  if (state.isTyping) refresh();
+  await nextTick();
+  state.isSpaceType = !state.isSpaceType;
+}
+
+function setTime() {
+  if (!state.setCountDown) {
+    state.showSetTime = false;
+    return;
+  }
+  if (!/\d+/.test(Number(state.setCountDown))) {
+    state.errorText = '请输入数字';
+    return;
+  }
+  state.isTyping = false;
+  state.showSetTime = false;
+  state.countDown = Number(state.setCountDown);
+}
+
 async function selectArticle(article: any) {
   state.selectedArticle = article;
   examStore.selectArticle(article.id);
-  state.countDown = 60;
+  state.countDown = state.selectTime || 60;
   state.step = 'typing';
   await nextTick();
   wordInputRef.value?.focusInput();
 }
 
 function restart() {
-  state.countDown = 60;
+  state.countDown = state.selectTime || 60;
   state.typingRecord = {};
   state.step = 'select';
   loadArticles();
@@ -156,7 +230,7 @@ function submitForm() {
 </script>
 
 <template>
-  <main class="y-main y-exam">
+  <main class="y-exam">
     <!-- Step 1: 填写信息 -->
     <div v-if="state.step === 'form'" class="y-exam-form">
       <h2 style="text-align: center; margin-bottom: 32px">打字速度测试</h2>
@@ -204,12 +278,70 @@ function submitForm() {
         </div>
         <div class="y-exam-article-title">{{ state.selectedArticle?.title }}</div>
       </div>
+      <div class="y-exam-typing__setting">
+        <Transition name="menu">
+          <div v-show="!onlyShowMain" class="y-exam-typing__setting-item y-exam-typing__refresh" @click="refresh">
+            <Tooltip content="刷新">
+              <IcoChange></IcoChange>
+            </Tooltip>
+          </div>
+        </Transition>
+        <Transition name="menu">
+          <div v-show="!onlyShowMain" class="y-exam-typing__setting-item y-exam-typing__time">
+            <Tooltip :content="$t('select_countdown')">
+              <span
+                v-for="item in customTime"
+                :key="item"
+                class="y-exam-typing__time-item"
+                :class="{ 'y-exam-typing__time-item--active': state.countDown === item }"
+                @click="selectTime(item)"
+              >{{ item }}</span>
+            </Tooltip>
+          </div>
+        </Transition>
+        <Transition name="menu">
+          <div
+            v-show="!onlyShowMain"
+            class="y-exam-typing__setting-item y-exam-typing__set-time"
+            :class="{ 'y-exam-typing__time-item--active': state.isStrictMode }"
+            @click="toggleStrictMode"
+          >
+            <span>{{ $t('strict_mode') }}</span>
+          </div>
+        </Transition>
+        <Transition name="menu">
+          <div v-show="!onlyShowMain" class="y-exam-typing__setting-item y-exam-typing__settings">
+            <YDropDown>
+              <template #title>
+                <Tooltip content="设置">
+                  <IcoSetting></IcoSetting>
+                </Tooltip>
+              </template>
+              <template #menu>
+                <div class="y-exam-typing__settings-menu">
+                  <div class="y-exam-typing__settings-item" @click="state.showCountDown = !state.showCountDown">
+                    <component :is="state.showCountDown ? IcoSelect : IcoUnSelect" />
+                    <span>{{ $t('display_countdown') }}</span>
+                  </div>
+                  <div class="y-exam-typing__settings-item" @click="changePunctuation">
+                    <component :is="state.isSpaceType ? IcoSelect : IcoUnSelect" />
+                    <span>{{ state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space') }}</span>
+                  </div>
+                  <div class="y-exam-typing__settings-item" @click="state.showSetTime = true">
+                    <span>{{ $t('custom_countdown') }}</span>
+                  </div>
+                </div>
+              </template>
+            </YDropDown>
+          </div>
+        </Transition>
+      </div>
       <WordInput
         ref="wordInputRef"
         :quote="state.selectedArticle?.content || ''"
-        :is-strict-mode="false"
-        :is-space-type="false"
-        @is-typing="state.isTyping = true"
+        :is-strict-mode="state.isStrictMode"
+        :is-space-type="state.isSpaceType"
+        @is-typing="isTypingFunc"
       />
     </div>
 
@@ -244,6 +376,21 @@ function submitForm() {
       </div>
     </div>
   </main>
+  <YModal :show="state.showSetTime" @close="state.showSetTime = false" @confirm="setTime">
+    <template #header>
+      <h3>{{ $t('custom_countdown') }}</h3>
+    </template>
+    <template #body>
+      <div class="time-limit__container">
+        <YInput
+          :error-text="state.errorText"
+          class="time-limit__q"
+          v-model="state.setCountDown"
+          :placeholder="$t('enter_countdown')"
+        ></YInput>
+      </div>
+    </template>
+  </YModal>
 </template>
 
 <style scoped lang="scss">
@@ -354,6 +501,9 @@ function submitForm() {
   :deep(.y-word-input) {
     height: 280px;
   }
+  :deep(.y-word-input) {
+    width: 100%;
+  }
 }
 .y-exam-typing__header {
   display: flex;
@@ -375,6 +525,95 @@ function submitForm() {
 .y-exam-article-title {
   font-size: 14px;
   color: $gray-04;
+}
+
+.y-exam-typing__setting {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 24px;
+  margin-bottom: 30px;
+}
+.y-exam-typing__setting-item:not(:last-child) {
+  position: relative;
+  margin-right: 30px;
+  &::after {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 12px;
+    background: $gray-02;
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+.y-exam-typing__time {
+  display: inline-flex;
+  align-items: center;
+  color: $gray-06;
+  font-size: 16px;
+  line-height: 24px;
+  height: 24px;
+}
+.y-exam-typing__time-item {
+  margin-right: 10px;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  &:hover { color: $main-color; }
+}
+.y-exam-typing__time-item--active {
+  color: $main-color;
+}
+.y-exam-typing__refresh {
+  cursor: pointer;
+  svg {
+    fill: $gray-06;
+    width: 18px;
+    height: 18px;
+  }
+}
+.y-exam-typing__set-time {
+  display: inline-flex;
+  align-items: center;
+  color: $gray-04;
+  font-size: 14px;
+  line-height: 24px;
+  height: 24px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  &:hover { color: $main-color; }
+}
+.y-exam-typing__settings-menu {
+  min-width: 160px;
+  padding: 6px 0;
+  font-size: 14px;
+}
+.y-exam-typing__settings-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+  svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  &:hover {
+    background: $background-gray;
+    color: $gray-08;
+  }
+}
+.time-limit__container {
+  color: $gray-04;
+  font-size: 14px;
 }
 
 @keyframes pulse {
