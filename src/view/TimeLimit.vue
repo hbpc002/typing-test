@@ -45,8 +45,10 @@ const state = reactive({
   showDetail: false,
   showSetTime: false,
   isSpaceType: false,
+  isStrictMode: true,
+  strictWrongCount: 0,
   quote: {} as any,
-  selectTime: 15 as number, // 设置的倒计时
+  selectTime: 60 as number, // 设置的倒计时
   showCountDown: true,
   countDown: null as null | number, // 实时倒计时
   errorText: '',
@@ -88,12 +90,13 @@ watch(
 
         if (state.countDown) {
           state.countDown -= 1;
-          if (state.countDown < 1) {
+            if (state.countDown < 1) {
             if (state.intervalId !== null) {
               clearInterval(state.intervalId);
               state.intervalId = null;
               state.showResult = true;
               state.typingRecord = wordInputRef.value?.getTypingRecord();
+              state.strictWrongCount = wordInputRef.value?.getStrictWrongCount() || 0;
               wordInputRef.value?.typingEnd();
 
               // 处理图表数据
@@ -205,6 +208,14 @@ async function changePunctuation() {
   state.isSpaceType = !state.isSpaceType;
 }
 
+async function toggleStrictMode() {
+  if (state.isTyping) {
+    refresh();
+  }
+  await nextTick();
+  state.isStrictMode = !state.isStrictMode;
+}
+
 function reset() {
   router.push('/');
   refresh();
@@ -255,6 +266,16 @@ function reset() {
           </div>
         </Transition>
         <Transition name="menu">
+          <div
+            v-show="!onlyShowMain"
+            class="y-time-limit__setting-item y-time-limit__set-time"
+            :class="{ 'y-time-limit__time-item--active': state.isStrictMode }"
+            @click="toggleStrictMode"
+          >
+            <span>{{ $t('strict_mode') }}</span>
+          </div>
+        </Transition>
+        <Transition name="menu">
           <div v-show="!onlyShowMain" class="y-time-limit__setting-item y-time-limit__settings">
             <YDropDown>
               <template #title>
@@ -293,6 +314,7 @@ function reset() {
       <WordInput
         ref="wordInputRef"
         :is-space-type="state.isSpaceType"
+        :is-strict-mode="state.isStrictMode"
         :quote="state.quote?.content"
         @is-typing="isTypingFunc"
       ></WordInput>
@@ -320,6 +342,7 @@ function reset() {
         @restart="restart"
         :total-time="state.selectTime"
         :is-positive="false"
+        :strict-wrong-count="state.strictWrongCount"
         :chart-speed="state.typingChartSpeed"
         :last-chart-speed="state.lastTypingChartSpeed"
         :chart-accuracy="state.typingChartAccuracy"

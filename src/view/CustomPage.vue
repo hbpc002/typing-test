@@ -38,6 +38,8 @@ const state = reactive({
   lastTypingChartAccuracy: [] as number[],
   customInfo: '',
   isSpaceType: false,
+  isStrictMode: false,
+  strictWrongCount: 0,
   show: false,
   isSet: false, // 记录是否一句确认，确认后刷新按钮隐藏
   quotes: null as any,
@@ -139,6 +141,7 @@ function finished() {
   }
   state.showResult = true;
   state.typingRecord = wordInputRef.value?.getTypingRecord();
+  state.strictWrongCount = wordInputRef.value?.getStrictWrongCount() || 0;
 
   // 处理图表数据
   const typingChartRecord = wordInputRef.value?.getTypingChartRecord();
@@ -202,6 +205,14 @@ async function changePunctuation() {
   await nextTick();
   state.isSpaceType = !state.isSpaceType;
 }
+
+async function toggleStrictMode() {
+  if (state.isTyping) {
+    refresh();
+  }
+  await nextTick();
+  state.isStrictMode = !state.isStrictMode;
+}
 </script>
 <template>
   <main :class="'y-font--' + currentFont" class="y-custom-page">
@@ -238,6 +249,16 @@ async function changePunctuation() {
           <Transition name="menu">
             <div
               v-show="!onlyShowMain"
+              class="y-custom-page__setting-item y-custom-page__set-time"
+              :class="{ 'y-custom-page__time--active': state.isStrictMode }"
+              @click="toggleStrictMode"
+            >
+              <span>{{ $t('strict_mode') }}</span>
+            </div>
+          </Transition>
+          <Transition name="menu">
+            <div
+              v-show="!onlyShowMain"
               v-if="!state.isSet"
               class="y-custom-page__setting-item y-custom-page__refresh"
               @click="refresh"
@@ -263,6 +284,7 @@ async function changePunctuation() {
         v-if="state.quotes"
         :quote="state.quotes?.content"
         :is-space-type="state.isSpaceType"
+        :is-strict-mode="state.isStrictMode"
         :can-space="state.isSet"
         @is-typing="isTypingFunc"
         @is-finished="finished"
@@ -282,6 +304,7 @@ async function changePunctuation() {
         @restart="restart"
         :total-time="state.time"
         :is-positive="true"
+        :strict-wrong-count="state.strictWrongCount"
         :chart-speed="state.typingChartSpeed"
         :last-chart-speed="state.lastTypingChartSpeed"
         :chart-accuracy="state.typingChartAccuracy"

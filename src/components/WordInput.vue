@@ -32,12 +32,14 @@ const props = withDefaults(
     canSpace?: boolean;
     isShowProgress?: boolean; // 是否展示进度，配合比一比游戏，展示其他人的进度。
     progressInfo?: IWebsocketTypingInfo;
+    isStrictMode?: boolean; // 严格模式：错字不能跳过
   }>(),
   {
     showMask: true,
     isSpaceType: false,
     canSpace: false,
-    isShowProgress: false
+    isShowProgress: false,
+    isStrictMode: false
   }
 );
 
@@ -61,7 +63,8 @@ const state = reactive({
   typingRecord: {} as TypingRecordType, // 每 100ms 记录一次 typingRecordRealTime
   wrongLength: 0,
   wordLength: 0,
-  currentComposition: '' // 当处于 isComposing 状态时输入的字符
+  currentComposition: '', // 当处于 isComposing 状态时输入的字符
+  strictWrongCount: 0 // 严格模式下拦截的错误按键数
 });
 
 const chartSampler = useTypingChartSampler({
@@ -328,6 +331,7 @@ function reset() {
   state.isTyping = false;
   state.typingRecord = {};
   state.typingRecordRealTime = [];
+  state.strictWrongCount = 0;
 }
 
 function beforeInputEvent(e: any) {
@@ -355,6 +359,7 @@ function beforeInputEvent(e: any) {
     }
     return;
   }
+
 }
 
 const selection = window.getSelection();
@@ -449,6 +454,40 @@ function inputEvent(e: Event) {
       input.innerHTML = '';
     }
     handlerInput(input?.innerText);
+    if (props.isStrictMode) {
+      enforceStrictMode(input);
+    }
+  }
+}
+
+function enforceStrictMode(inputEl: HTMLElement) {
+  // 找到第一个错误字符的位置
+  let firstWrong = -1;
+  for (let i = 0; i < state.quoteArr.length; i++) {
+    if (state.quoteArr[i].isWrong) {
+      firstWrong = i;
+      break;
+    }
+  }
+  if (firstWrong === -1) return;
+
+  // 如果有人在错误字符后面继续打字，把后面的字符全部删掉
+  if (state.inputText.length > firstWrong + 1) {
+    const correctedText = state.inputText.substring(0, firstWrong + 1);
+    inputEl.innerText = correctedText;
+    state.inputText = correctedText;
+
+    // 光标移到末尾
+    const range = document.createRange();
+    const sel = window.getSelection();
+    if (inputEl.firstChild) {
+      range.setStart(inputEl.firstChild, correctedText.length);
+      range.collapse(true);
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    }
+
+    state.strictWrongCount++;
   }
 }
 function compositionStartEvent() {
@@ -493,12 +532,17 @@ function shortenString(str: string) {
   return firstChar + '…' + lastChar;
 }
 
+function getStrictWrongCount() {
+  return state.strictWrongCount;
+}
+
 defineExpose({
   focusInput,
   blurInput,
   getTypingRecord,
   getTypingChartRecord,
-  typingEnd
+  typingEnd,
+  getStrictWrongCount
 });
 </script>
 

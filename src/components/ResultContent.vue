@@ -37,6 +37,7 @@ const props = defineProps<{
   isPositive?: boolean; // 是否是正向计时
   type?: string;
   showSaveRecord?: boolean;
+  strictWrongCount?: number; // 严格模式拦截的错误按键数
   chartSpeed?: number[];
   lastChartSpeed?: number[];
   chartAccuracy?: number[];
@@ -371,6 +372,10 @@ const speedTooltipFormatter = buildTooltipFormatter(` ${t('wpm')}`);
       <span class="result-content--main-color">{{ totalTime.toFixed(1) }}</span
       >&nbsp;{{ $t('sec') }}
     </div>
+    <div v-if="strictWrongCount" class="result-content flex-center">
+      {{ $t('blocked_wrong_keys') }}:&nbsp;
+      <span class="result-content--error-color">{{ strictWrongCount }}</span>
+    </div>
   </div>
   <Chart
     v-if="chartAccuracy && chartAccuracy.length"
@@ -483,6 +488,9 @@ const speedTooltipFormatter = buildTooltipFormatter(` ${t('wpm')}`);
 }
 .result-content--main-color {
   color: $main-color;
+}
+.result-content--error-color {
+  color: $main-red;
 }
 .result-content__toolbar {
   margin-top: 60px;

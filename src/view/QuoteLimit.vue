@@ -55,6 +55,8 @@ const state = reactive({
   quotes: null as any, // [] 或 {}
   isTyping: false,
   isSpaceType: false,
+  isStrictMode: false,
+  strictWrongCount: 0,
   intervalId: null as null | number,
   lastIndex: -1,
   len: 5,
@@ -193,8 +195,10 @@ function finished() {
   state.showResult = true;
   if (state.type === 'short') {
     state.typingRecordArr.push(wordInputShortRef.value?.getTypingRecord());
+    state.strictWrongCount = wordInputShortRef.value?.getStrictWrongCount() || 0;
   } else {
     state.typingRecord = wordInputRef.value?.getTypingRecord();
+    state.strictWrongCount = wordInputRef.value?.getStrictWrongCount() || 0;
 
     // 处理图表数据
     const typingChartRecord = wordInputRef.value?.getTypingChartRecord();
@@ -234,6 +238,14 @@ async function changePunctuation() {
   await nextTick();
   state.isSpaceType = !state.isSpaceType;
 }
+
+async function toggleStrictMode() {
+  if (state.isTyping) {
+    refresh();
+  }
+  await nextTick();
+  state.isStrictMode = !state.isStrictMode;
+}
 </script>
 <template>
   <main :class="'y-font--' + currentFont" class="y-quote-limit">
@@ -268,6 +280,16 @@ async function changePunctuation() {
               @click="changePunctuation"
             >
               {{ state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space') }}
+            </div>
+          </Transition>
+          <Transition name="menu">
+            <div
+              v-show="!onlyShowMain"
+              class="y-quote-limit__setting-item y-quote-limit__set-time"
+              :class="{ 'y-quote-limit__time--active': state.isStrictMode }"
+              @click="toggleStrictMode"
+            >
+              <span>{{ $t('strict_mode') }}</span>
             </div>
           </Transition>
           <Transition name="menu">
@@ -339,6 +361,7 @@ async function changePunctuation() {
           ref="wordInputRef"
           v-if="state.quotes"
           :is-space-type="state.isSpaceType"
+          :is-strict-mode="state.isStrictMode"
           :quote="state.quotes?.content"
           @is-typing="isTypingFunc"
           @is-finished="finished"
@@ -381,6 +404,7 @@ async function changePunctuation() {
         @restart="restart"
         :total-time="state.time"
         :is-positive="true"
+        :strict-wrong-count="state.strictWrongCount"
         :chart-speed="state.typingChartSpeed"
         :last-chart-speed="state.lastTypingChartSpeed"
         :chart-accuracy="state.typingChartAccuracy"

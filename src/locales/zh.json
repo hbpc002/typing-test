@@ -53,6 +53,8 @@
     "review_playback": "查看回放",
     "save_records": "保存记录",
     "restart": "重新开始",
+    "strict_mode": "严格模式",
+    "blocked_wrong_keys": "错误按键(已拦截)",
     "sec": "秒",
     "wpm": "字/分钟",
     "accuracy_curve": "准确率曲线",

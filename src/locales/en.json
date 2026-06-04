@@ -53,6 +53,8 @@
     "review_playback": "Review Playback",
     "save_records": "Save Records",
     "restart": "Restart",
+    "strict_mode": "Strict Mode",
+    "blocked_wrong_keys": "Blocked Wrong Keys",
     "sec": "sec",
     "wpm": "WPM",
     "accuracy_curve": "Accuracy Curve",
