@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently -n fe,be -c cyan,green \"vite\" \"cd server && pnpm start\"",
+    "postinstall": "cd server && pnpm install",
+    "dev": "concurrently -n fe,be -c cyan,green \"vite --host 0.0.0.0\" \"cd server && pnpm start\"",
     "dev:fe": "vite",
     "dev:be": "cd server && pnpm start",
     "build": "run-p type-check build-only",
