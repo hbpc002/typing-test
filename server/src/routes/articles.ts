@@ -18,7 +18,7 @@ router.get('/', async (ctx) => {
       ctx.body = { result: { articles: cacheAll } };
       return;
     }
-    const rows = db.prepare('SELECT id, title, author, type, created_at FROM articles ORDER BY id DESC').all();
+    const rows = db.prepare('SELECT id, title, author, content, type, created_at FROM articles ORDER BY id DESC').all();
     cacheAll = rows;
     ctx.body = { result: { articles: rows } };
   } catch (e: any) {
