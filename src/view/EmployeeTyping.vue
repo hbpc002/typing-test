@@ -207,7 +207,7 @@ function submitForm() {
       <WordInput
         ref="wordInputRef"
         :quote="state.selectedArticle?.content || ''"
-        :is-strict-mode="true"
+        :is-strict-mode="false"
         :is-space-type="false"
         @is-typing="state.isTyping = true"
       />
@@ -248,7 +248,7 @@ function submitForm() {
 
 <style scoped lang="scss">
 .y-exam {
-  max-width: 680px;
+  max-width: 900px;
 }
 
 /* Form */
@@ -352,6 +352,12 @@ function submitForm() {
 }
 
 /* Typing */
+.y-exam-typing {
+  .y-word-input__wrap,
+  .y-word-input {
+    height: 280px;
+  }
+}
 .y-exam-typing__header {
   display: flex;
   align-items: center;
