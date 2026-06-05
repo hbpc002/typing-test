@@ -54,19 +54,28 @@ const state = reactive({
 
 watch(() => state.isTyping, (val) => {
   if (val && state.countDown > 0) {
-    state.intervalId = setInterval(() => {
-      state.countDown -= 1;
-      if (state.countDown < 1) {
-        finishTyping();
-      }
-    }, 1000);
+    startTimer();
   } else {
-    if (state.intervalId) {
-      clearInterval(state.intervalId);
-      state.intervalId = null;
-    }
+    stopTimer();
   }
 });
+
+function startTimer() {
+  stopTimer();
+  state.intervalId = setInterval(() => {
+    state.countDown -= 1;
+    if (state.countDown < 1) {
+      finishTyping();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (state.intervalId !== null) {
+    clearInterval(state.intervalId);
+    state.intervalId = null;
+  }
+}
 
 watch(() => state.setCountDown, () => {
   if (!/\d+/.test(Number(state.setCountDown))) {
@@ -77,10 +86,7 @@ watch(() => state.setCountDown, () => {
 });
 
 function finishTyping() {
-  if (state.intervalId !== null) {
-    clearInterval(state.intervalId);
-    state.intervalId = null;
-  }
+  stopTimer();
   state.typingRecord = wordInputRef.value?.getTypingRecord() || {};
   state.strictWrongCount = wordInputRef.value?.getStrictWrongCount() || 0;
   wordInputRef.value?.typingEnd();
@@ -175,6 +181,9 @@ function selectTime(time: number) {
 
 function isTypingFunc() {
   state.isTyping = true;
+  if (state.countDown > 0 && !state.intervalId) {
+    startTimer();
+  }
 }
 
 function toggleStrictMode() {
@@ -190,7 +199,6 @@ function toggleStrictMode() {
     });
   }
 }
-
 async function changePunctuation() {
   if (state.isTyping) refresh();
   await nextTick();
