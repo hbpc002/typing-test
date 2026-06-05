@@ -2,7 +2,7 @@ name: typing
 
 services:
   backend:
-    build: ./server
+    image: ghcr.io/<你的仓库>/typing-test-backend:latest
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -12,9 +12,7 @@ services:
       - typing-net
 
   frontend:
-    build:
-      context: .
-      dockerfile: nginx/Dockerfile
+    image: ghcr.io/<你的仓库>/typing-test-frontend:latest
     restart: unless-stopped
     ports:
       - "443:443"
