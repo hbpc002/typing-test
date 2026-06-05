@@ -165,6 +165,7 @@ async function refresh() {
   state.isTyping = false;
   state.countDown = state.selectTime || 60;
   state.typingRecord = {};
+  wordInputRef.value?.clearInput();
 }
 
 function selectTime(time: number) {
