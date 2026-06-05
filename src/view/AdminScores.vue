@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, onMounted, inject } from 'vue';
 import { getRecords, exportRecords, getStats } from '@/request';
+import AdminTabs from '@/components/AdminTabs.vue';
 
 const message: any = inject('message');
 
@@ -66,6 +67,7 @@ onMounted(() => {
 
 <template>
   <main class="y-main" style="max-width: 1000px">
+    <AdminTabs />
     <h2 style="margin-bottom: 16px">成绩查询</h2>
 
     <div class="y-admin-stats">

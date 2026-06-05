@@ -29,5 +29,9 @@ coverage
 
 .env.development
 .env
+server/.env
 
 .claude/
+.opencode/
+node-compile-cache/
+core.*

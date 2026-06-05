@@ -6,6 +6,8 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
+    env_file:
+      - ./server/.env
     volumes:
       - typing-data:/data
     networks:

@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
 import type { Middleware } from 'koa';
+import { requireEnv } from './env';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'typing-admin-secret-key-2024';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const ADMIN_PASSWORD = requireEnv('ADMIN_PASSWORD');
+const JWT_SECRET = requireEnv('JWT_SECRET', { minLength: 32 });
 
 export function validateAdminPassword(password: string): boolean {
   return password === ADMIN_PASSWORD;

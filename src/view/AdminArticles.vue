@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, onMounted, inject } from 'vue';
 import { getArticles, createArticle, updateArticle, deleteArticle } from '@/request';
+import AdminTabs from '@/components/AdminTabs.vue';
 
 const message: any = inject('message');
 
@@ -84,6 +85,7 @@ onMounted(loadArticles);
 
 <template>
   <main class="y-main" style="max-width: 800px">
+    <AdminTabs />
     <div class="y-admin-header">
       <h2>文章管理</h2>
       <button class="y-admin-btn" @click="openCreate">新建文章</button>

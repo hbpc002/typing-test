@@ -7,6 +7,10 @@
 
 整个项目包含前端和后端，前端 Vue3 + Vite，后端使用 Koa2 + [Leancloud](https://leancloud.cn)。该项目是前端部分，后端也将在未来开源。
 
+### 2026.06.05
+- 管理员后台：新增顶部 Tab（`AdminTabs`）组件，统一 `文章管理` / `成绩查询` 入口，避免 `/admin/scores` 不可达。
+- 安全加固：移除管理员密码 `ADMIN_PASSWORD` 与 JWT 签名密钥 `JWT_SECRET` 的默认值。服务启动时强制读取环境变量，缺失或 `JWT_SECRET` 长度不足 32 字符会直接退出。`server/.env.example` 提供配置模板，`docker-compose.yml` 通过 `env_file` 注入。
+
 ### 2026.04.21
 - 工程优化：路由懒加载、构建分包（vue / echarts / utils）、生产环境自动 drop console。
 - 移除未使用依赖（lodash、@vitejs/plugin-legacy）与重复字体大文件，构建体积与时间均显著减小。
@@ -87,3 +91,38 @@
 
 ## 反馈
 有兴趣可以加入 QQ 群：1028763853 交流反馈。
+
+## 部署
+
+### 后端环境变量（必填）
+
+后端在启动时会强制校验以下环境变量，缺失或不符合要求会直接退出，不会用任何默认值兜底：
+
+| 变量 | 必填 | 校验 | 说明 |
+| --- | --- | --- | --- |
+| `ADMIN_PASSWORD` | ✅ | 非空 | 管理员登录密码，生产环境必须使用强密码 |
+| `JWT_SECRET` | ✅ | 非空且 ≥ 32 字符 | JWT 签名密钥，丢失即所有 token 失效 |
+| `PORT` | ❌ | 默认 `8000` | 服务监听端口 |
+| `DB_PATH` | ❌ | 默认 `/data/typing.db` | SQLite 数据库文件路径 |
+
+### 本地启动后端
+
+```bash
+cd server
+cp .env.example .env
+# 编辑 .env，至少修改 ADMIN_PASSWORD 与 JWT_SECRET
+openssl rand -hex 32          # 生成 JWT_SECRET
+pnpm start
+```
+
+### Docker Compose 部署
+
+`docker-compose.yml` 已配置 `env_file: ./server/.env`，部署时只需：
+
+```bash
+cp server/.env.example server/.env
+# 编辑 server/.env，至少修改 ADMIN_PASSWORD 与 JWT_SECRET
+docker compose up -d
+```
+
+> ⚠️ **生产环境必看**：千万不要使用 `.env.example` 中的占位符；推荐用 `openssl rand -base64 24` 生成 `ADMIN_PASSWORD`、`openssl rand -hex 32` 生成 `JWT_SECRET`。如果服务启动时打印 `[FATAL] Missing required environment variable: ...`，说明变量未注入。
