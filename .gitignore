@@ -35,3 +35,4 @@ server/.env
 .opencode/
 node-compile-cache/
 core.*
+ssl/

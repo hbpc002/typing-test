@@ -20,6 +20,8 @@ services:
       - "443:443"
     depends_on:
       - backend
+    volumes:
+      - ./ssl:/etc/nginx/ssl:ro
     networks:
       - typing-net
 

@@ -8,7 +8,8 @@ COPY . .
 RUN pnpm build-only
 
 FROM nginx:stable-alpine
-RUN mkdir -p /etc/nginx/ssl
+RUN apk add --no-cache openssl \
+    && mkdir -p /etc/nginx/ssl
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY generate-cert.sh /docker-entrypoint.d/generate-cert.sh
