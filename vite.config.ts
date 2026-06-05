@@ -8,6 +8,14 @@ import svgLoader from 'vite-svg-loader';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [vue(), vueJsx(), svgLoader()],
+  test: {
+    environment: 'jsdom',
+    root: '.',
+    include: [
+      'src/**/*.{test,spec}.{ts,js}',
+      'server/src/**/*.{test,spec}.{ts,js}'
+    ]
+  },
   esbuild: {
     drop: mode === 'production' ? ['console', 'debugger'] : []
   },
