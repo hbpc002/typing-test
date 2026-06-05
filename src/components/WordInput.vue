@@ -22,6 +22,7 @@ const { y } = useScroll(el, { behavior: 'smooth' });
 const whiteList = ['”', '》', '}', '）', '】', '’']; // 白名单，这些字符不会被标记为错误
 const compositionList = ['“”', '《》', '{}', '（）', '【】', '‘’']; // composition 状态下的字符
 const inputAreaRef = ref<HTMLElement | null>(null);
+let compositionJustEnded = false;
 
 const props = withDefaults(
   defineProps<{
@@ -340,9 +341,7 @@ function beforeInputEvent(e: any) {
     if (compositionList.includes(e.data)) {
       return;
     }
-    // 处于 composition 状态
-    if (state.currentComposition === e.data || !/\w+/.test(e.data)) {
-      // 这里是 composition 状态结束的条件，比如按了空格、回车。
+    if (state.currentComposition === e.data) {
       state.isComposing = false;
       state.currentComposition = '';
       return;
@@ -454,8 +453,11 @@ function inputEvent(e: Event) {
       input.innerHTML = '';
     }
     handlerInput(input?.innerText);
-    if (props.isStrictMode) {
+    if (props.isStrictMode && !compositionJustEnded) {
       enforceStrictMode(input);
+    }
+    if (compositionJustEnded) {
+      compositionJustEnded = false;
     }
   }
 }
@@ -498,11 +500,9 @@ function compositionUpdateEvent() {
 }
 function compositionEndEvent(e: CompositionEvent) {
   state.isComposing = false;
+  compositionJustEnded = true;
   const input = e.target as HTMLElement;
-  const text = input?.innerText;
-  if (text.length !== state.inputText.length) {
-    handlerInput(text);
-  }
+  handlerInput(input?.innerText);
 }
 
 function mouseDownEvent() {
@@ -536,13 +536,25 @@ function getStrictWrongCount() {
   return state.strictWrongCount;
 }
 
+function clearInput() {
+  state.inputText = '';
+  state.isTyping = false;
+  state.typingRecord = {};
+  state.typingRecordRealTime = [];
+  state.strictWrongCount = 0;
+  if (inputAreaRef.value) {
+    inputAreaRef.value.innerHTML = '';
+  }
+}
+
 defineExpose({
   focusInput,
   blurInput,
   getTypingRecord,
   getTypingChartRecord,
   typingEnd,
-  getStrictWrongCount
+  getStrictWrongCount,
+  clearInput
 });
 </script>
 

@@ -165,6 +165,7 @@ function selectTime(time: number) {
   const wasTyping = state.isTyping;
   state.countDown = time;
   if (wasTyping) {
+    wordInputRef.value?.clearInput();
     state.isTyping = false;
     nextTick(() => {
       state.isTyping = true;
@@ -178,7 +179,10 @@ function isTypingFunc() {
 
 function toggleStrictMode() {
   const wasTyping = state.isTyping;
-  if (wasTyping) refresh();
+  if (wasTyping) {
+    refresh();
+    wordInputRef.value?.clearInput();
+  }
   state.isStrictMode = !state.isStrictMode;
   if (wasTyping) {
     nextTick(() => {
