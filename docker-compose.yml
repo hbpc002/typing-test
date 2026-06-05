@@ -6,10 +6,19 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
+    # 同时使用 env_file 注入变量和卷挂载 .env（让容器内 dotenv 也能读到，
+    # 避免 env_file 路径相对 CWD 解析失败时容器起不来）
     env_file:
       - ./server/.env
     volumes:
-      - typing-data:/data
+      - ./server/.env:/app/.env:ro
+      - ./typing-data:/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8000/api/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
     networks:
       - typing-net
 
@@ -19,7 +28,8 @@ services:
     ports:
       - "443:443"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     # 挂载主机 ./ssl 目录到容器 /etc/nginx/ssl，:rw 让容器内 generate-cert.sh
     # 能在证书缺失时写入自签证书。如需使用自有证书，把 typing.crt / typing.key
     # 放到主机 ./ssl 目录里，generate-cert.sh 会跳过生成直接复用。

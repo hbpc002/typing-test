@@ -1,10 +1,14 @@
+import './env';
 import Koa from 'koa';
 import cors from '@koa/cors';
 import { koaBody } from 'koa-body';
 import Router from 'koa-router';
 import articlesRouter from './routes/articles';
 import recordsRouter from './routes/records';
-import { validateAdminPassword, signToken } from './auth';
+import { validateAdminPassword, signToken, requireEnv } from './auth';
+
+requireEnv('ADMIN_PASSWORD');
+requireEnv('JWT_SECRET', { minLength: 32 });
 
 const app = new Koa();
 const router = new Router();
