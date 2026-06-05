@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 export function requireEnv(name: string, opts: { minLength?: number } = {}): string {
   const value = process.env[name];
   if (!value || !value.trim()) {
