@@ -226,57 +226,45 @@ async function toggleStrictMode() {
           {{ timeFormat || 0 }}
         </div>
         <div class="y-custom-page__setting">
-          <Transition name="menu">
-            <div
-              v-show="!onlyShowMain"
-              class="y-custom-page__setting-item y-custom-page__set-time"
-              :class="[state.showTime ? 'y-custom-page__time--active' : '']"
-              @click="state.showTime = !state.showTime"
-            >
-              {{ $t('display_timer') }}
-            </div>
-          </Transition>
-          <Transition name="menu">
-            <div
-              v-show="!onlyShowMain"
-              v-if="!state.isSet"
-              class="y-custom-page__setting-item y-custom-page__set-time"
-              @click="changePunctuation"
-            >
-              {{ state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space') }}
-            </div>
-          </Transition>
-          <Transition name="menu">
-            <div
-              v-show="!onlyShowMain"
-              class="y-custom-page__setting-item y-custom-page__set-time"
-              :class="{ 'y-custom-page__time--active': state.isStrictMode }"
-              @click="toggleStrictMode"
-            >
-              <span>{{ $t('strict_mode') }}</span>
-            </div>
-          </Transition>
-          <Transition name="menu">
-            <div
-              v-show="!onlyShowMain"
-              v-if="!state.isSet"
-              class="y-custom-page__setting-item y-custom-page__refresh"
-              @click="refresh"
-            >
-              <Tooltip class="y-custom-page__time-svg" content="刷新">
-                <IcoChange></IcoChange>
-              </Tooltip>
-            </div>
-          </Transition>
-          <Transition name="menu">
-            <div
-              v-show="!onlyShowMain"
-              class="y-custom-page__setting-item y-custom-page__custom"
-              @click="customClick"
-            >
-              自定义
-            </div>
-          </Transition>
+          <div
+            :class="['y-custom-page__setting-item', 'y-custom-page__set-time', { 'is-menu-hidden': onlyShowMain, 'y-custom-page__time--active': state.showTime }]"
+            :aria-hidden="onlyShowMain"
+            @click="state.showTime = !state.showTime"
+          >
+            {{ $t('display_timer') }}
+          </div>
+          <div
+            v-if="!state.isSet"
+            :class="['y-custom-page__setting-item', 'y-custom-page__set-time', { 'is-menu-hidden': onlyShowMain }]"
+            :aria-hidden="onlyShowMain"
+            @click="changePunctuation"
+          >
+            {{ state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space') }}
+          </div>
+          <div
+            :class="['y-custom-page__setting-item', 'y-custom-page__set-time', { 'is-menu-hidden': onlyShowMain, 'y-custom-page__time--active': state.isStrictMode }]"
+            :aria-hidden="onlyShowMain"
+            @click="toggleStrictMode"
+          >
+            <span>{{ $t('strict_mode') }}</span>
+          </div>
+          <div
+            v-if="!state.isSet"
+            :class="['y-custom-page__setting-item', 'y-custom-page__refresh', { 'is-menu-hidden': onlyShowMain }]"
+            :aria-hidden="onlyShowMain"
+            @click="refresh"
+          >
+            <Tooltip class="y-custom-page__time-svg" content="刷新">
+              <IcoChange></IcoChange>
+            </Tooltip>
+          </div>
+          <div
+            :class="['y-custom-page__setting-item', 'y-custom-page__custom', { 'is-menu-hidden': onlyShowMain }]"
+            :aria-hidden="onlyShowMain"
+            @click="customClick"
+          >
+            自定义
+          </div>
         </div>
       </div>
       <WordInput
@@ -291,11 +279,12 @@ async function toggleStrictMode() {
         class-name="y-custom-page__word-input"
       ></WordInput>
       <DetailModal ref="detailModalRef" :quote="state.quotes"></DetailModal>
-      <Transition name="menu">
-        <div v-show="!onlyShowMain" class="y-custom-page__tips">
-          <p>*{{ $t('sentence.word_tip') }}</p>
-        </div>
-      </Transition>
+      <div
+        :class="['y-custom-page__tips', { 'is-menu-hidden': onlyShowMain }]"
+        :aria-hidden="onlyShowMain"
+      >
+        <p>*{{ $t('sentence.word_tip') }}</p>
+      </div>
     </template>
     <template v-else>
       <ResultContent

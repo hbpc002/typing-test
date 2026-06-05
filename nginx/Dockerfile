@@ -9,7 +9,11 @@ RUN pnpm build-only
 
 FROM nginx:stable-alpine
 RUN apk add --no-cache openssl \
-    && mkdir -p /etc/nginx/ssl
+    && mkdir -p /etc/nginx/ssl \
+    && openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+       -keyout /etc/nginx/ssl/typing.key \
+       -out /etc/nginx/ssl/typing.crt \
+       -subj "/CN=typing.local"
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY generate-cert.sh /docker-entrypoint.d/generate-cert.sh

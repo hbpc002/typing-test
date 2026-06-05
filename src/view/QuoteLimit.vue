@@ -262,78 +262,70 @@ async function toggleStrictMode() {
           class="y-quote-limit__setting"
           :class="state.type !== 'short' ? 'y-quote-limit__setting--disabled' : ''"
         >
-          <Transition name="menu">
-            <div
-              v-show="!onlyShowMain"
-              class="y-quote-limit__setting-item y-quote-limit__set-time"
-              :class="[state.showTime ? 'y-quote-limit__time--active' : '']"
-              @click="state.showTime = !state.showTime"
-            >
-              {{ $t('display_timer') }}
-            </div>
-          </Transition>
-          <Transition name="menu">
-            <div
-              v-show="!onlyShowMain"
-              v-if="state.type !== 'short'"
-              class="y-quote-limit__setting-item y-quote-limit__set-time"
-              @click="changePunctuation"
-            >
-              {{ state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space') }}
-            </div>
-          </Transition>
-          <Transition name="menu">
-            <div
-              v-show="!onlyShowMain"
-              class="y-quote-limit__setting-item y-quote-limit__set-time"
-              :class="{ 'y-quote-limit__time--active': state.isStrictMode }"
-              @click="toggleStrictMode"
-            >
-              <span>{{ $t('strict_mode') }}</span>
-            </div>
-          </Transition>
-          <Transition name="menu">
-            <div
-              v-show="!onlyShowMain"
-              class="y-quote-limit__setting-item y-quote-limit__refresh"
-              @click="refresh"
-            >
-              <div class="y-quote-limit__time-svg">
-                <Tooltip content="刷新">
-                  <IcoChange></IcoChange>
-                </Tooltip>
-              </div>
-            </div>
-          </Transition>
-          <Transition name="menu">
-            <div v-show="!onlyShowMain" class="y-quote-limit__setting-item y-quote-limit__time">
-              <Tooltip content="选择句子类型">
-                <span
-                  v-for="item in typeList"
-                  :key="item.type"
-                  class="y-quote-limit__time-item"
-                  style="width: auto"
-                  :class="{ 'y-quote-limit__time-item--active': state.type === item.type }"
-                  @click="selectType(item.type)"
-                  >{{ item.name }}</span
-                >
+          <div
+            :class="['y-quote-limit__setting-item', 'y-quote-limit__set-time', { 'is-menu-hidden': onlyShowMain, 'y-quote-limit__time--active': state.showTime }]"
+            :aria-hidden="onlyShowMain"
+            @click="state.showTime = !state.showTime"
+          >
+            {{ $t('display_timer') }}
+          </div>
+          <div
+            v-if="state.type !== 'short'"
+            :class="['y-quote-limit__setting-item', 'y-quote-limit__set-time', { 'is-menu-hidden': onlyShowMain }]"
+            :aria-hidden="onlyShowMain"
+            @click="changePunctuation"
+          >
+            {{ state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space') }}
+          </div>
+          <div
+            :class="['y-quote-limit__setting-item', 'y-quote-limit__set-time', { 'is-menu-hidden': onlyShowMain, 'y-quote-limit__time--active': state.isStrictMode }]"
+            :aria-hidden="onlyShowMain"
+            @click="toggleStrictMode"
+          >
+            <span>{{ $t('strict_mode') }}</span>
+          </div>
+          <div
+            :class="['y-quote-limit__setting-item', 'y-quote-limit__refresh', { 'is-menu-hidden': onlyShowMain }]"
+            :aria-hidden="onlyShowMain"
+            @click="refresh"
+          >
+            <div class="y-quote-limit__time-svg">
+              <Tooltip content="刷新">
+                <IcoChange></IcoChange>
               </Tooltip>
             </div>
-          </Transition>
-          <Transition name="menu">
-            <div v-show="!onlyShowMain" class="y-quote-limit__setting-item y-quote-limit__time">
-              <Tooltip content="选择数量">
-                <span
-                  v-for="item in quoteLength"
-                  :key="item"
-                  class="y-quote-limit__time-item"
-                  :class="{ 'y-quote-limit__time-item--active': state.len === item }"
-                  @click="selectLen(item)"
-                  >{{ item }}</span
-                >
-              </Tooltip>
-            </div>
-          </Transition>
+          </div>
+          <div
+            :class="['y-quote-limit__setting-item', 'y-quote-limit__time', { 'is-menu-hidden': onlyShowMain }]"
+            :aria-hidden="onlyShowMain"
+          >
+            <Tooltip content="选择句子类型">
+              <span
+                v-for="item in typeList"
+                :key="item.type"
+                class="y-quote-limit__time-item"
+                style="width: auto"
+                :class="{ 'y-quote-limit__time-item--active': state.type === item.type }"
+                @click="selectType(item.type)"
+                >{{ item.name }}</span
+              >
+            </Tooltip>
+          </div>
+          <div
+            :class="['y-quote-limit__setting-item', 'y-quote-limit__time', { 'is-menu-hidden': onlyShowMain }]"
+            :aria-hidden="onlyShowMain"
+          >
+            <Tooltip content="选择数量">
+              <span
+                v-for="item in quoteLength"
+                :key="item"
+                class="y-quote-limit__time-item"
+                :class="{ 'y-quote-limit__time-item--active': state.len === item }"
+                @click="selectLen(item)"
+                >{{ item }}</span
+              >
+            </Tooltip>
+          </div>
         </div>
       </div>
       <template v-if="state.type === 'short'">
@@ -377,23 +369,22 @@ async function toggleStrictMode() {
             {{ state.quotes?.author }}
           </span>
         </div>
-        <Transition name="menu">
-          <div
-            v-show="!onlyShowMain"
-            class="y-quote-limit__detail"
-            @click="detailModalRef?.setShowDetail()"
-          >
-            {{ $t('view_full') }}
-          </div>
-        </Transition>
+        <div
+          :class="['y-quote-limit__detail', { 'is-menu-hidden': onlyShowMain }]"
+          :aria-hidden="onlyShowMain"
+          @click="detailModalRef?.setShowDetail()"
+        >
+          {{ $t('view_full') }}
+        </div>
         <DetailModal ref="detailModalRef" :quote="state.quotes"></DetailModal>
       </template>
-      <Transition name="menu">
-        <div v-show="!onlyShowMain" class="y-quote-limit__tips">
-          <p>*{{ $t('sentence.word_tip') }}</p>
-          <p v-if="state.type === 'short'">*短句模式下回车则会切换到下一条。</p>
-        </div>
-      </Transition>
+      <div
+        :class="['y-quote-limit__tips', { 'is-menu-hidden': onlyShowMain }]"
+        :aria-hidden="onlyShowMain"
+      >
+        <p>*{{ $t('sentence.word_tip') }}</p>
+        <p v-if="state.type === 'short'">*短句模式下回车则会切换到下一条。</p>
+      </div>
     </template>
     <template v-else>
       <ResultContent

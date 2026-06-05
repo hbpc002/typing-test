@@ -56,27 +56,30 @@ const changeKeyboard = (keyboard: KeyBoardType) => {
 <template>
   <main>
     <div class="y-keyboard__setting-wrap">
-      <Transition name="menu">
-        <div class="flex-center--y" style="justify-content: right" v-show="!onlyShowMain">
-          <div
-            class="y-keyboard__setting-item"
-            v-if="state.currentSystem === 'win'"
-            @click="state.currentSystem = 'mac'"
-          >
-            Windows
-          </div>
-          <div
-            class="y-keyboard__setting-item"
-            v-if="state.currentSystem === 'mac'"
-            @click="state.currentSystem = 'win'"
-          >
-            Mac
-          </div>
-          <div class="y-keyboard__setting-item" @click="state.keyboardModal = true">
-            切换键盘配列
-          </div>
+      <div
+        class="flex-center--y"
+        style="justify-content: right"
+        :class="{ 'is-menu-hidden': onlyShowMain }"
+        :aria-hidden="onlyShowMain"
+      >
+        <div
+          class="y-keyboard__setting-item"
+          v-if="state.currentSystem === 'win'"
+          @click="state.currentSystem = 'mac'"
+        >
+          Windows
         </div>
-      </Transition>
+        <div
+          class="y-keyboard__setting-item"
+          v-if="state.currentSystem === 'mac'"
+          @click="state.currentSystem = 'win'"
+        >
+          Mac
+        </div>
+        <div class="y-keyboard__setting-item" @click="state.keyboardModal = true">
+          切换键盘配列
+        </div>
+      </div>
     </div>
     <div class="y-main__screen-wrap">
       <div class="y-main__screen" :class="[printContent ? 'y-main__screen--word' : '']">

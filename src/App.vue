@@ -300,119 +300,122 @@ function changeLocale() {
     <img src="https://file.yasinchan.com/3mJW6cYdhhonSKsrLNIrPRescfb9202i/1757293763.png" alt="" />
   </div>
   <div class="y-app">
-    <header>
+    <header :class="{ 'is-menu-area-dim': onlyShowMain }">
       <div class="y-info" :class="[onlyShowMain ? 'y-info__disabled' : '']">
         <a href="/" class="y-info__title main-color"><span class="y-info__cap">T</span>yping</a>
       </div>
 
-      <Transition name="menu">
-        <div class="y-menu" v-show="!onlyShowMain">
-          <router-link
-            to="/game"
-            class="y-menu__item"
-            :class="{
-              'y-menu__item--active': $route.name === 'Game' || $route.name === 'GameRoom',
-              'y-menu__item--blink':
-                !gameVisited && $route.name !== 'Game' && $route.name !== 'GameRoom'
-            }"
-            >{{ $t('game_mode') }}</router-link
-          >
-          <router-link to="/" class="y-menu__item">{{ $t('limit_mode') }}</router-link>
-          <!--        <router-link to="/words" class="y-menu__item">词/成语模式</router-link>-->
-          <router-link to="/quote" class="y-menu__item">{{ $t('time_mode') }}</router-link>
-          <router-link to="/custom" class="y-menu__item">{{ $t('custom_mode') }}</router-link>
-          <a href="/keyboard" class="y-menu__item y-menu__keyboard-test">{{ $t('keyboard') }}</a>
-          <router-link to="/leaderboard" class="y-menu__item">{{ $t('leaderboard') }}</router-link>
-          <router-link to="/admin" class="y-menu__item" style="opacity:0.6">管理</router-link>
-          <YDropDown>
-            <template #title>
-              <div class="y-menu__item flex-center--y">
-                <IcoSetting></IcoSetting>
+      <div
+        class="y-menu"
+        :class="{ 'is-menu-hidden': onlyShowMain }"
+        :aria-hidden="onlyShowMain"
+      >
+        <router-link
+          to="/game"
+          class="y-menu__item"
+          :class="{
+            'y-menu__item--active': $route.name === 'Game' || $route.name === 'GameRoom',
+            'y-menu__item--blink':
+              !gameVisited && $route.name !== 'Game' && $route.name !== 'GameRoom'
+          }"
+          >{{ $t('game_mode') }}</router-link
+        >
+        <router-link to="/" class="y-menu__item">{{ $t('limit_mode') }}</router-link>
+        <!--        <router-link to="/words" class="y-menu__item">词/成语模式</router-link>-->
+        <router-link to="/quote" class="y-menu__item">{{ $t('time_mode') }}</router-link>
+        <router-link to="/custom" class="y-menu__item">{{ $t('custom_mode') }}</router-link>
+        <a href="/keyboard" class="y-menu__item y-menu__keyboard-test">{{ $t('keyboard') }}</a>
+        <router-link to="/leaderboard" class="y-menu__item">{{ $t('leaderboard') }}</router-link>
+        <router-link to="/admin" class="y-menu__item" style="opacity:0.6">管理</router-link>
+        <YDropDown>
+          <template #title>
+            <div class="y-menu__item flex-center--y">
+              <IcoSetting></IcoSetting>
+            </div>
+          </template>
+          <template #menu>
+            <div class="y-auth__menu">
+              <div class="y-menu__change y-menu__change-font" @click="changeFont">
+                {{ $t('change_font') }}
               </div>
-            </template>
-            <template #menu>
-              <div class="y-auth__menu">
-                <div class="y-menu__change y-menu__change-font" @click="changeFont">
-                  {{ $t('change_font') }}
-                </div>
-                <div class="y-menu__change" @click="changeTheme('normal')">
-                  {{ $t('change_theme') }}
-                </div>
-                <div class="y-menu__change" @click="suggestClick">
-                  {{ $t('suggestions_and_feedback') }}
-                </div>
+              <div class="y-menu__change" @click="changeTheme('normal')">
+                {{ $t('change_theme') }}
               </div>
-            </template>
-          </YDropDown>
-          <div class="y-menu__item" @click="changeLocale">
-            <IcoTranslate></IcoTranslate>
-          </div>
-          <div class="y-menu__item y-menu__item-auth">
-            <auth ref="authRef"></auth>
-          </div>
+              <div class="y-menu__change" @click="suggestClick">
+                {{ $t('suggestions_and_feedback') }}
+              </div>
+            </div>
+          </template>
+        </YDropDown>
+        <div class="y-menu__item" @click="changeLocale">
+          <IcoTranslate></IcoTranslate>
         </div>
-      </Transition>
+        <div class="y-menu__item y-menu__item-auth">
+          <auth ref="authRef"></auth>
+        </div>
+      </div>
     </header>
 
     <router-view></router-view>
 
-    <Transition name="menu">
-      <footer v-show="!onlyShowMain" class="flex-center">
-        <div class="y-app__footer-group">
-          <a
-            class="flex-center--y y-app__footer"
-            href="https://github.com/YasinChan/typing"
-            target="_blank"
-          >
-            <IcoGithub></IcoGithub>
-            <span>{{ $t('source_code') }}</span>
-          </a>
-          <a
-            class="flex-center--y y-app__footer"
-            href="https://yasinchan.com/tags/typing/"
-            target="_blank"
-          >
-            <IcoDocument></IcoDocument>
-            <span>{{ $t('technology') }}</span>
-          </a>
-          <a
-            class="flex-center--y y-app__footer"
-            href="https://www.bilibili.com/video/BV1ci4y1s73q"
-            target="_blank"
-          >
-            <IcoIntroduce></IcoIntroduce>
-            <span>{{ $t('introduction') }}</span>
-          </a>
-          <router-link to="/statement" class="flex-center--y cursor-pointer y-app__footer">
-            <IcoStatement></IcoStatement>
-            <span>{{ $t('statement') }}</span>
-          </router-link>
-          <router-link to="/log" class="flex-center--y cursor-pointer y-app__footer">
-            <IcoLog></IcoLog>
-            <span>{{ $t('log') }}</span>
-          </router-link>
-        </div>
-        <div class="y-app__footer-divider"></div>
-        <div class="y-app__footer-group">
-          <span class="flex-center--y cursor-pointer y-app__footer" @click="changeTheme('normal')">
-            <IcoTheme></IcoTheme>
-            <span>{{ $t('theme') }}</span>
-          </span>
-          <span class="flex-center--y cursor-pointer y-app__footer" @click="changeFont">
-            <IcoFont></IcoFont>
-            <span>{{ $t('font') }}</span>
-          </span>
-          <span class="flex-center--y cursor-pointer y-app__footer" @click="suggestClick">
-            <IcoMessage></IcoMessage>
-            <span>{{ $t('suggestions_and_feedback') }}</span>
-          </span>
-          <span class="flex-center--y cursor-pointer y-app__footer" @click="obj.showDonate = true">
-            <IcoDonate></IcoDonate>
-            <span>{{ $t('appreciate') }}</span>
-          </span>
-        </div>
-      </footer>
-    </Transition>
+    <footer
+      :class="['flex-center', { 'is-menu-area-dim': onlyShowMain, 'is-menu-hidden': onlyShowMain }]"
+      :aria-hidden="onlyShowMain"
+    >
+      <div class="y-app__footer-group">
+        <a
+          class="flex-center--y y-app__footer"
+          href="https://github.com/YasinChan/typing"
+          target="_blank"
+        >
+          <IcoGithub></IcoGithub>
+          <span>{{ $t('source_code') }}</span>
+        </a>
+        <a
+          class="flex-center--y y-app__footer"
+          href="https://yasinchan.com/tags/typing/"
+          target="_blank"
+        >
+          <IcoDocument></IcoDocument>
+          <span>{{ $t('technology') }}</span>
+        </a>
+        <a
+          class="flex-center--y y-app__footer"
+          href="https://www.bilibili.com/video/BV1ci4y1s73q"
+          target="_blank"
+        >
+          <IcoIntroduce></IcoIntroduce>
+          <span>{{ $t('introduction') }}</span>
+        </a>
+        <router-link to="/statement" class="flex-center--y cursor-pointer y-app__footer">
+          <IcoStatement></IcoStatement>
+          <span>{{ $t('statement') }}</span>
+        </router-link>
+        <router-link to="/log" class="flex-center--y cursor-pointer y-app__footer">
+          <IcoLog></IcoLog>
+          <span>{{ $t('log') }}</span>
+        </router-link>
+      </div>
+      <div class="y-app__footer-divider"></div>
+      <div class="y-app__footer-group">
+        <span class="flex-center--y cursor-pointer y-app__footer" @click="changeTheme('normal')">
+          <IcoTheme></IcoTheme>
+          <span>{{ $t('theme') }}</span>
+        </span>
+        <span class="flex-center--y cursor-pointer y-app__footer" @click="changeFont">
+          <IcoFont></IcoFont>
+          <span>{{ $t('font') }}</span>
+        </span>
+        <span class="flex-center--y cursor-pointer y-app__footer" @click="suggestClick">
+          <IcoMessage></IcoMessage>
+          <span>{{ $t('suggestions_and_feedback') }}</span>
+        </span>
+        <span class="flex-center--y cursor-pointer y-app__footer" @click="obj.showDonate = true">
+          <IcoDonate></IcoDonate>
+          <span>{{ $t('appreciate') }}</span>
+        </span>
+      </div>
+    </footer>
   </div>
 
   <Transition name="menu">
@@ -422,15 +425,14 @@ function changeLocale() {
     </div>
   </Transition>
 
-  <Transition name="menu">
-    <Tooltip
-      v-if="!onlyShowMain"
-      class="y-submit-suggest"
-      :content="$t('suggestions_and_feedback')"
-    >
-      <IcoMessage @click="suggestClick" class="y-submit-suggest__svg"></IcoMessage>
-    </Tooltip>
-  </Transition>
+  <Tooltip
+    v-if="!onlyShowMain"
+    class="y-submit-suggest"
+    :class="{ 'is-menu-hidden': onlyShowMain }"
+    :content="$t('suggestions_and_feedback')"
+  >
+    <IcoMessage @click="suggestClick" class="y-submit-suggest__svg"></IcoMessage>
+  </Tooltip>
   <SuggestModal
     ref="suggestModalRef"
     v-if="obj.showSuggest"
@@ -773,6 +775,22 @@ main {
 .menu-enter-from,
 .menu-leave-to {
   opacity: 0;
+}
+
+.y-app header,
+.y-app footer {
+  transition: background-color 0.3s ease;
+}
+
+.is-menu-area-dim {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.is-menu-hidden {
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.3s ease;
 }
 
 @keyframes title-blink {

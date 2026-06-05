@@ -2,7 +2,7 @@ name: typing
 
 services:
   backend:
-    image: ghcr.io/<你的仓库>/typing-test-backend:latest
+    image: ghcr.io/hbpc002/typing-test-backend:latest
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -14,14 +14,15 @@ services:
       - typing-net
 
   frontend:
-    image: ghcr.io/<你的仓库>/typing-test-frontend:latest
+    image: ghcr.io/hbpc002/typing-test-frontend:latest
     restart: unless-stopped
     ports:
       - "443:443"
     depends_on:
       - backend
-    volumes:
-      - ./ssl:/etc/nginx/ssl:ro
+    # 默认镜像内已自带自签证书。如需使用自有证书，将 ./ssl/typing.crt 与 ./ssl/typing.key
+    # 放到主机上后取消下一行注释即可（用 :rw 让 nginx 能读取，证书不会在容器内被改写）。
+    # - ./ssl:/etc/nginx/ssl:ro
     networks:
       - typing-net
 

@@ -232,84 +232,81 @@ function reset() {
         >
           {{ state.countDown || state.selectTime }}
         </div>
-        <Transition name="menu">
-          <div
-            v-show="!onlyShowMain"
-            class="y-time-limit__setting-item y-time-limit__refresh"
-            @click="refresh"
-          >
-            <Tooltip class="y-time-limit__time-svg" content="刷新">
-              <IcoChange></IcoChange>
-            </Tooltip>
-          </div>
-        </Transition>
-        <Transition name="menu">
-          <div v-show="!onlyShowMain" class="y-time-limit__setting-item y-time-limit__time">
-            <Tooltip :content="$t('select_countdown')">
-              <span
-                v-for="item in customTime"
-                :key="item"
-                class="y-time-limit__time-item"
-                :class="{ 'y-time-limit__time-item--active': state.selectTime === item }"
-                @click="selectTime(item)"
-                >{{ item }}</span
-              >
-            </Tooltip>
-            <div
+        <div
+          :class="['y-time-limit__setting-item', 'y-time-limit__refresh', { 'is-menu-hidden': onlyShowMain }]"
+          :aria-hidden="onlyShowMain"
+          @click="refresh"
+        >
+          <Tooltip class="y-time-limit__time-svg" content="刷新">
+            <IcoChange></IcoChange>
+          </Tooltip>
+        </div>
+        <div
+          :class="['y-time-limit__setting-item', 'y-time-limit__time', { 'is-menu-hidden': onlyShowMain }]"
+          :aria-hidden="onlyShowMain"
+        >
+          <Tooltip :content="$t('select_countdown')">
+            <span
+              v-for="item in customTime"
+              :key="item"
               class="y-time-limit__time-item"
-              v-if="router.currentRoute?.value?.query?.id"
-              style="cursor: pointer; white-space: nowrap; margin-left: 10px"
-              @click="reset"
+              :class="{ 'y-time-limit__time-item--active': state.selectTime === item }"
+              @click="selectTime(item)"
+              >{{ item }}</span
             >
-              {{ $t('reset') }}
-            </div>
-          </div>
-        </Transition>
-        <Transition name="menu">
+          </Tooltip>
           <div
-            v-show="!onlyShowMain"
-            class="y-time-limit__setting-item y-time-limit__set-time"
-            :class="{ 'y-time-limit__time-item--active': state.isStrictMode }"
-            @click="toggleStrictMode"
+            class="y-time-limit__time-item"
+            v-if="router.currentRoute?.value?.query?.id"
+            style="cursor: pointer; white-space: nowrap; margin-left: 10px"
+            @click="reset"
           >
-            <span>{{ $t('strict_mode') }}</span>
+            {{ $t('reset') }}
           </div>
-        </Transition>
-        <Transition name="menu">
-          <div v-show="!onlyShowMain" class="y-time-limit__setting-item y-time-limit__settings">
-            <YDropDown>
-              <template #title>
-                <Tooltip class="y-time-limit__time-svg" content="设置">
-                  <IcoSetting
-                    :class="{
-                      'y-time-limit__time-item--active': !customTime.includes(state.selectTime)
-                    }"
-                  ></IcoSetting>
-                </Tooltip>
-              </template>
-              <template #menu>
-                <div class="y-time-limit__settings-menu">
-                  <div
-                    class="y-time-limit__settings-item"
-                    @click="state.showCountDown = !state.showCountDown"
-                  >
-                    <component :is="state.showCountDown ? IcoSelect : IcoUnSelect" />
-                    <span>{{ $t('display_countdown') }}</span>
-                  </div>
-                  <div class="y-time-limit__settings-item" @click="changePunctuation">
-                    <component :is="state.isSpaceType ? IcoSelect : IcoUnSelect" />
-                    <span>{{
-                      state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space')
-                    }}</span>
-                  </div>
-                  <div class="y-time-limit__settings-item" @click="state.showSetTime = true">
-                    <span>{{ $t('custom_countdown') }}</span>
-                  </div>
+        </div>
+        <div
+          :class="['y-time-limit__setting-item', 'y-time-limit__set-time', { 'is-menu-hidden': onlyShowMain, 'y-time-limit__time-item--active': state.isStrictMode }]"
+          :aria-hidden="onlyShowMain"
+          @click="toggleStrictMode"
+        >
+          <span>{{ $t('strict_mode') }}</span>
+        </div>
+        <div
+          :class="['y-time-limit__setting-item', 'y-time-limit__settings', { 'is-menu-hidden': onlyShowMain }]"
+          :aria-hidden="onlyShowMain"
+        >
+          <YDropDown>
+            <template #title>
+              <Tooltip class="y-time-limit__time-svg" content="设置">
+                <IcoSetting
+                  :class="{
+                    'y-time-limit__time-item--active': !customTime.includes(state.selectTime)
+                  }"
+                ></IcoSetting>
+              </Tooltip>
+            </template>
+            <template #menu>
+              <div class="y-time-limit__settings-menu">
+                <div
+                  class="y-time-limit__settings-item"
+                  @click="state.showCountDown = !state.showCountDown"
+                >
+                  <component :is="state.showCountDown ? IcoSelect : IcoUnSelect" />
+                  <span>{{ $t('display_countdown') }}</span>
                 </div>
-              </template>
-            </YDropDown>
-          </div>
-        </Transition>
+                <div class="y-time-limit__settings-item" @click="changePunctuation">
+                  <component :is="state.isSpaceType ? IcoSelect : IcoUnSelect" />
+                  <span>{{
+                    state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space')
+                  }}</span>
+                </div>
+                <div class="y-time-limit__settings-item" @click="state.showSetTime = true">
+                  <span>{{ $t('custom_countdown') }}</span>
+                </div>
+              </div>
+            </template>
+          </YDropDown>
+        </div>
       </div>
       <WordInput
         ref="wordInputRef"
@@ -328,11 +325,12 @@ function reset() {
           {{ state.quote?.author }}
         </span>
       </div>
-      <Transition name="menu">
-        <div v-show="!onlyShowMain" class="y-time-limit__detail">
-          <span @click="detailModalRef?.setShowDetail()">{{ $t('view_full') }}</span>
-        </div>
-      </Transition>
+      <div
+        :class="['y-time-limit__detail', { 'is-menu-hidden': onlyShowMain }]"
+        :aria-hidden="onlyShowMain"
+      >
+        <span @click="detailModalRef?.setShowDetail()">{{ $t('view_full') }}</span>
+      </div>
     </template>
     <template v-else>
       <ResultContent
