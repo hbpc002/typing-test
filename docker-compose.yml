@@ -20,9 +20,11 @@ services:
       - "443:443"
     depends_on:
       - backend
-    # 默认镜像内已自带自签证书。如需使用自有证书，将 ./ssl/typing.crt 与 ./ssl/typing.key
-    # 放到主机上后取消下一行注释即可（用 :rw 让 nginx 能读取，证书不会在容器内被改写）。
-    # - ./ssl:/etc/nginx/ssl:ro
+    # 挂载主机 ./ssl 目录到容器 /etc/nginx/ssl，:rw 让容器内 generate-cert.sh
+    # 能在证书缺失时写入自签证书。如需使用自有证书，把 typing.crt / typing.key
+    # 放到主机 ./ssl 目录里，generate-cert.sh 会跳过生成直接复用。
+    volumes:
+      - ./ssl:/etc/nginx/ssl:rw
     networks:
       - typing-net
 
