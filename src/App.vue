@@ -136,11 +136,11 @@ onBeforeUnmount(() => {
 function handleKeyDown(e: KeyboardEvent) {
   if (e.code === KEY_CODE_ENUM['ESCAPE']) {
     useConfig.setIsEscape(true);
+    useConfig.setOnlyShowMain(true);
   }
   if (e.code === KEY_CODE_ENUM['CAPS_LOCK']) {
     useConfig.setCapsLockOn(true);
   }
-  useConfig.setOnlyShowMain(true);
 }
 
 function handleKeyUp(e: KeyboardEvent) {
