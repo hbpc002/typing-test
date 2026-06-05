@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, computed, nextTick, onMounted, watch, inject } from 'vue';
+import { reactive, ref, computed, nextTick, onUnmounted, watch, inject } from 'vue';
 import WordInput from '@/components/WordInput.vue';
 import Tooltip from '@/components/ui/Tooltip.vue';
 import YDropDown from '@/components/ui/DropDown.vue';
@@ -50,6 +50,21 @@ const state = reactive({
   totalKeystrokes: 0,
   wrongKeystrokes: 0,
   strictWrongCount: 0,
+  showTypingSettings: true,
+});
+
+let idleTimer: number | null = null;
+
+function onKeyDown() {
+  state.showTypingSettings = false;
+  if (idleTimer !== null) clearTimeout(idleTimer);
+  idleTimer = window.setTimeout(() => {
+    state.showTypingSettings = true;
+  }, 2000);
+}
+
+onUnmounted(() => {
+  if (idleTimer !== null) clearTimeout(idleTimer);
 });
 
 watch(() => state.isTyping, (val) => {
@@ -303,7 +318,7 @@ function submitForm() {
         </div>
         <div class="y-exam-article-title">{{ state.selectedArticle?.title }}</div>
       </div>
-      <div v-show="!onlyShowMain" class="y-exam-typing__setting">
+      <div v-show="state.showTypingSettings" class="y-exam-typing__setting">
         <div class="y-exam-typing__setting-item y-exam-typing__refresh" @click="refresh">
           <Tooltip content="刷新">
             <IcoChange></IcoChange>
@@ -358,6 +373,7 @@ function submitForm() {
         :is-strict-mode="state.isStrictMode"
         :is-space-type="state.isSpaceType"
         @is-typing="isTypingFunc"
+        @keydown-event="onKeyDown"
       />
     </div>
 
