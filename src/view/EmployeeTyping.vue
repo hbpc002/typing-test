@@ -162,8 +162,14 @@ async function refresh() {
 }
 
 function selectTime(time: number) {
+  const wasTyping = state.isTyping;
   state.countDown = time;
-  state.isTyping = false;
+  if (wasTyping) {
+    state.isTyping = false;
+    nextTick(() => {
+      state.isTyping = true;
+    });
+  }
 }
 
 function isTypingFunc() {
@@ -171,8 +177,14 @@ function isTypingFunc() {
 }
 
 function toggleStrictMode() {
-  if (state.isTyping) refresh();
+  const wasTyping = state.isTyping;
+  if (wasTyping) refresh();
   state.isStrictMode = !state.isStrictMode;
+  if (wasTyping) {
+    nextTick(() => {
+      state.isTyping = true;
+    });
+  }
 }
 
 async function changePunctuation() {
