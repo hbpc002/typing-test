@@ -325,57 +325,58 @@ function submitForm() {
         </div>
         <div class="y-exam-article-title">{{ state.selectedArticle?.title }}</div>
       </div>
-      <Transition name="menu">
-        <div v-show="!onlyShowMain" class="y-exam-typing__setting">
-          <div class="y-exam-typing__setting-item y-exam-typing__refresh" @click="refresh">
-            <Tooltip content="刷新">
-              <IcoChange></IcoChange>
-            </Tooltip>
-          </div>
-          <div class="y-exam-typing__setting-item y-exam-typing__time">
-            <Tooltip :content="$t('select_countdown')">
-              <span
-                v-for="item in customTime"
-                :key="item"
-                class="y-exam-typing__time-item"
-                :class="{ 'y-exam-typing__time-item--active': state.countDown === item }"
-                @click="selectTime(item)"
-              >{{ item }}</span>
-            </Tooltip>
-          </div>
-          <div
-            class="y-exam-typing__setting-item y-exam-typing__set-time"
-            :class="{ 'y-exam-typing__time-item--active': state.isStrictMode }"
-            @click="toggleStrictMode"
-          >
-            <span>{{ $t('strict_mode') }}</span>
-          </div>
-          <div class="y-exam-typing__setting-item y-exam-typing__settings">
-            <YDropDown>
-              <template #title>
-                <Tooltip content="设置">
-                  <IcoSetting></IcoSetting>
-                </Tooltip>
-              </template>
-              <template #menu>
-                <div class="y-exam-typing__settings-menu">
-                  <div class="y-exam-typing__settings-item" @click="state.showCountDown = !state.showCountDown">
-                    <component :is="state.showCountDown ? IcoSelect : IcoUnSelect" />
-                    <span>{{ $t('display_countdown') }}</span>
-                  </div>
-                  <div class="y-exam-typing__settings-item" @click="changePunctuation">
-                    <component :is="state.isSpaceType ? IcoSelect : IcoUnSelect" />
-                    <span>{{ state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space') }}</span>
-                  </div>
-                  <div class="y-exam-typing__settings-item" @click="state.showSetTime = true">
-                    <span>{{ $t('custom_countdown') }}</span>
-                  </div>
-                </div>
-              </template>
-            </YDropDown>
-          </div>
+      <div
+        class="y-exam-typing__setting"
+        :class="{ 'is-menu-hidden': onlyShowMain }"
+      >
+        <div class="y-exam-typing__setting-item y-exam-typing__refresh" @click="refresh">
+          <Tooltip content="刷新">
+            <IcoChange></IcoChange>
+          </Tooltip>
         </div>
-      </Transition>
+        <div class="y-exam-typing__setting-item y-exam-typing__time">
+          <Tooltip :content="$t('select_countdown')">
+            <span
+              v-for="item in customTime"
+              :key="item"
+              class="y-exam-typing__time-item"
+              :class="{ 'y-exam-typing__time-item--active': state.countDown === item }"
+              @click="selectTime(item)"
+            >{{ item }}</span>
+          </Tooltip>
+        </div>
+        <div
+          class="y-exam-typing__setting-item y-exam-typing__set-time"
+          :class="{ 'y-exam-typing__time-item--active': state.isStrictMode }"
+          @click="toggleStrictMode"
+        >
+          <span>{{ $t('strict_mode') }}</span>
+        </div>
+        <div class="y-exam-typing__setting-item y-exam-typing__settings">
+          <YDropDown>
+            <template #title>
+              <Tooltip content="设置">
+                <IcoSetting></IcoSetting>
+              </Tooltip>
+            </template>
+            <template #menu>
+              <div class="y-exam-typing__settings-menu">
+                <div class="y-exam-typing__settings-item" @click="state.showCountDown = !state.showCountDown">
+                  <component :is="state.showCountDown ? IcoSelect : IcoUnSelect" />
+                  <span>{{ $t('display_countdown') }}</span>
+                </div>
+                <div class="y-exam-typing__settings-item" @click="changePunctuation">
+                  <component :is="state.isSpaceType ? IcoSelect : IcoUnSelect" />
+                  <span>{{ state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space') }}</span>
+                </div>
+                <div class="y-exam-typing__settings-item" @click="state.showSetTime = true">
+                  <span>{{ $t('custom_countdown') }}</span>
+                </div>
+              </div>
+            </template>
+          </YDropDown>
+        </div>
+      </div>
       <WordInput
         ref="wordInputRef"
         :quote="state.selectedArticle?.content || ''"
@@ -444,6 +445,18 @@ function submitForm() {
     </template>
   </YModal>
 </template>
+
+<style lang="scss">
+/* 打字时设置栏淡出但保留高度（不折叠），区别于其它页面 v-show 的折叠行为 */
+.y-exam-typing__setting {
+  transition: opacity 0.3s ease;
+}
+.y-exam-typing__setting.is-menu-hidden {
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+}
+</style>
 
 <style scoped lang="scss">
 
