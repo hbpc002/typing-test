@@ -7,6 +7,7 @@ COPY tsconfig.json ./
 COPY src ./src
 
 FROM node:18-alpine
+RUN apk add --no-cache tzdata
 WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY package.json ./
