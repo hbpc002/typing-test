@@ -10,29 +10,6 @@ export enum NAME_COLOR_ENUM {
   GRAY = 'gray'
 }
 
-export interface IWebsocketInfos {
-  id: string;
-  name: string;
-  typing: string;
-  info: string;
-  action: string[];
-  time: string;
-  result: any;
-}
-
-export interface IWebsocketTyping {
-  len: number;
-  accuracy: string;
-  name?: string;
-  isLenLargest?: boolean;
-  isAccuracyLargest?: boolean;
-  color?: string;
-}
-
-export interface IWebsocketTypingInfo {
-  [key: string]: IWebsocketTyping;
-}
-
 export type SystemType = 'mac' | 'win';
 
 export type SentenceArrItem = {
@@ -40,7 +17,7 @@ export type SentenceArrItem = {
   word: string;
   isInput: boolean;
   isWrong: boolean;
-  info: null | IWebsocketTyping[];
+  info: null;
 };
 
 export type TypingRecordItemType = {
@@ -53,17 +30,6 @@ export type TypingRecordItemType = {
 };
 export type TypingRecordType = {
   [key: number]: TypingRecordItemType[];
-};
-
-export type LeaderBoardType = {
-  accuracy: string;
-  duration: number;
-  type: string;
-  userId: string;
-  userName: string;
-  wpm: string;
-  objectId: string;
-  createdAt: string;
 };
 
 export type SuggestItem = {
@@ -99,11 +65,4 @@ export type COLOR_KEY_TYPE = keyof typeof COLOR_ENUM | 'THEME_INPUT';
 // 定义一个对象类型，其键使用枚举的键类型
 export type COLOR_TYPE = {
   [key in COLOR_KEY_TYPE]: string; // 这里假设值类型为字符串，您可以根据实际情况替换
-};
-
-export type WsItem = {
-  op: string;
-  player: string[];
-  time: number;
-  count: number;
 };

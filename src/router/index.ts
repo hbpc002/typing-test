@@ -7,9 +7,9 @@ const router = createRouter({
 });
 
 const DEFAULT_TITLE =
-  '在线打字练习与打字速度测试（WPM）| 键盘测试 / 多人 PK - Typing';
+  '在线打字练习与打字速度测试（WPM）| 键盘测试 - Typing';
 const DEFAULT_DESCRIPTION =
-  '免费的在线中英文打字练习与打字速度测试（WPM）网站。提供限时、计时、自定义文本、键盘测试与多人 PK 五种模式，实时统计准确率与速度，支持回放、排行榜、自定义主题与字体。';
+  '免费的在线中英文打字练习与打字速度测试（WPM）网站。提供限时、计时、自定义文本、键盘测试四种模式，实时统计准确率与速度，支持回放、自定义主题与字体。';
 
 function setMetaDescription(content: string) {
   let el = document.querySelector('meta[name="description"]');

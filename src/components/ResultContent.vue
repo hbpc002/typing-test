@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { reactive, computed, onMounted, onUnmounted, inject } from 'vue';
+import { reactive, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 // components
@@ -10,33 +10,19 @@ import Chart from '@/components/chart/Chart.vue';
 // types
 import type { TypingRecordType, TypingRecordItemType } from '@/types';
 
-// apis
-import { saveLeaderBoard } from '@/request';
-
 // svg
 import IcoReplay from '@/assets/svg/replay.svg';
 import IcoChange from '@/assets/svg/change.svg';
 import IcoSpeedUp from '@/assets/svg/speed-up.svg';
-import IcoRecord from '@/assets/svg/record.svg';
 import IcoTips from '@/assets/svg/tips.svg';
 
-// stores
-import { useUserStore } from '@/store/user';
-import { storeToRefs } from 'pinia';
-
 const { t } = useI18n();
-const userStore = useUserStore();
-const { profile, getProvinceUser } = storeToRefs(userStore);
-
-const confirm: any = inject('confirm');
-const message: any = inject('message');
 const props = defineProps<{
   typingRecord?: TypingRecordType;
   typingRecordArr?: TypingRecordType[];
   totalTime: number;
   isPositive?: boolean; // 是否是正向计时
   type?: string;
-  showSaveRecord?: boolean;
   strictWrongCount?: number; // 严格模式拦截的错误按键数
   chartSpeed?: number[];
   lastChartSpeed?: number[];
@@ -56,8 +42,7 @@ const state = reactive({
   accuracyInfo: '' as string,
   speed: '',
   speedInfo: '' as string,
-  playRatio: 1,
-  hadRecord: false
+  playRatio: 1
 });
 
 const keys = computed(() => {
@@ -118,7 +103,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  state.hadRecord = false;
   if (state.intervalId) {
     clearInterval(state.intervalId);
     state.intervalId = null;
@@ -127,15 +111,6 @@ onUnmounted(() => {
     clearTimeout(timeout);
   });
   state.timeoutArray = [];
-});
-
-const replyName = computed(() => {
-  if (profile.value?.userName) {
-    return profile.value.userName;
-  } else if (getProvinceUser.value) {
-    return getProvinceUser.value;
-  }
-  return '';
 });
 
 function replay() {
@@ -261,51 +236,6 @@ function restart() {
   emit('restart');
 }
 
-async function record() {
-  if (state.hadRecord) {
-    return;
-  }
-  if (Number(state.accuracy.replace('%', '')) >= 80 && props.totalTime >= 15) {
-    confirm({
-      title: '确认保存',
-      content: '确认将会将该条记录保存到排行榜中。',
-      confirmClose: () => {
-        return true;
-      },
-      confirm: async () => {
-        try {
-          const res = await saveLeaderBoard({
-            accuracy: state.accuracy,
-            duration: Math.round(props.totalTime),
-            type: props.type,
-            userId: profile.value?.userId,
-            userName: replyName.value,
-            wpm: Number(state.speedInfo)
-          });
-          message({ message: res.data?.message });
-          // emit('restart');
-          state.hadRecord = true;
-        } catch (error: any) {
-          const msg = error.response?.data?.message;
-          message({ message: msg, type: 'error' });
-        }
-        return true;
-      }
-    });
-    return;
-  }
-  confirm({
-    title: '不符合记录条件',
-    content: '可以记录的条件为时长大于 15 秒，同时准确率大于 80%。',
-    confirmClose: () => {
-      return true;
-    },
-    confirm: () => {
-      return true;
-    }
-  });
-}
-
 const getTypingContentAtTime = (time: number) => {
   if (!props.typingRecord) return '';
   // 从当前时间往前找，直到找到有输入内容的记录
@@ -362,7 +292,7 @@ const speedTooltipFormatter = buildTooltipFormatter(` ${t('wpm')}`);
       {{ $t('speed') }}:&nbsp;<span class="result-content--main-color">{{ state.speed }}</span>
       <Tooltip
         class="cursor-pointer result-content__tips"
-        :content="$t('sentence.leaderboard_rule1')"
+        :content="$t('sentence.wpm_rule')"
       >
         <IcoTips></IcoTips>
       </Tooltip>
@@ -401,16 +331,6 @@ const speedTooltipFormatter = buildTooltipFormatter(` ${t('wpm')}`);
     <YButton class="result-content__svg" v-if="!isShort" size="large" @click="replay"
       ><IcoReplay></IcoReplay> {{ $t('review_playback') }}</YButton
     >
-    <Tooltip
-      v-if="showSaveRecord"
-      class="result-content__svg"
-      :class="[state.hadRecord ? 'result-content__svg--disabled' : '']"
-      :content="state.hadRecord ? '记录已保存' : '保存本次记录，将会在排行榜中展示。'"
-    >
-      <YButton class="flex-center--y" :disable="state.hadRecord" size="large" @click="record"
-        ><IcoRecord></IcoRecord> {{ $t('save_records') }}</YButton
-      >
-    </Tooltip>
   </div>
   <div class="result-content__replay" v-if="state.currentOperation">
     <div v-if="timeFormat !== null" class="result-content__count-down">
@@ -449,7 +369,6 @@ const speedTooltipFormatter = buildTooltipFormatter(` ${t('wpm')}`);
     <ol>
       <li>{{ $t('sentence.reminder1') }}</li>
       <li>{{ $t('sentence.reminder2') }}</li>
-      <li>{{ $t('sentence.reminder3') }}</li>
     </ol>
   </div>
 </template>

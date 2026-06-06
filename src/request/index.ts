@@ -77,36 +77,6 @@ export const getTodo = () => {
   return axios.get('/api/todo');
 };
 
-// 获取排行榜
-export const getLeaderBoard = () => {
-  return axios.get('/api/leaderboard');
-};
-
-// 获取某个用户的记录
-export const getLeaderBoardByUserId = (params?: { id: string }) => {
-  return axios.get('/api/leaderboard/by-user-id', { params });
-};
-
-// 保存记录
-export const saveLeaderBoard = (params: any) => {
-  return axios.post('/api/leaderboard/save', params);
-};
-
-export const getGame = (params?: { id: string }) => {
-  return axios.get('/api/game', { params });
-};
-export const creteGame = (params?: { userName: string; userId?: string; count: number }) => {
-  return axios.post('/api/game/create', params);
-};
-
-export const getWs = (params?: { id: string }) => {
-  return axios.get('/api/ws', { params });
-};
-
-export const getWsById = (params?: { id: string }) => {
-  return axios.get('/api/ws/by-id', { params });
-};
-
 // === Exam / Admin APIs ===
 
 export const adminLogin = (params: { password: string }) => {

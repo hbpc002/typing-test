@@ -3,7 +3,7 @@
 
 > 技术分享 [https://yasinchan.com/tags/typing/](https://yasinchan.com/tags/typing/)
 
-> 这是一个简约风格的可自定义主题的打字记录和键盘测试网站，可以用来测试打字速度，统计打字错误率，支持回放打字过程，支持排行榜，同时也支持自定义主题，切换字体，登录记录数据以及在线比一比游戏等等功能。网站也包含一套用户反馈系统记录反馈信息，后续也将以此持续迭代优化，继续开发更多有趣的功能，欢迎体验，也欢迎贡献你的想法或者代码~
+> 这是一个简约风格的可自定义主题的打字记录和键盘测试网站，可以用来测试打字速度，统计打字错误率，支持回放打字过程，同时也支持自定义主题，切换字体，登录记录数据等等功能。网站也包含一套用户反馈系统记录反馈信息，后续也将以此持续迭代优化，继续开发更多有趣的功能，欢迎体验，也欢迎贡献你的想法或者代码~
 
 整个项目包含前端和后端，前端 Vue3 + Vite，后端使用 Koa2 + [Leancloud](https://leancloud.cn)。该项目是前端部分，后端也将在未来开源。
 
@@ -14,7 +14,7 @@
 ### 2026.04.21
 - 工程优化：路由懒加载、构建分包（vue / echarts / utils）、生产环境自动 drop console。
 - 移除未使用依赖（lodash、@vitejs/plugin-legacy）与重复字体大文件，构建体积与时间均显著减小。
-- 抽离 `useTypingChartSampler`、`useProgressInfo` composable，简化 `WordInput.vue`；修复 `App.vue` 全局事件监听未解绑问题。
+- 抽离 `useTypingChartSampler` composable，简化 `WordInput.vue`；修复 `App.vue` 全局事件监听未解绑问题。
 - 合并 `ThemeModal` 9 个冗余 watch；`chart.ts` 合并 `localStorage` 读写。
 ### 2025.03.11
 - 提供传统浏览器兼容性支持
@@ -27,10 +27,6 @@
 ### 2024.4.7
 - 增加结算页面的图表，用于统计打字准确率和速度。
 - 实现图表历史数据，每次结算都可以与上次的打字记录进行对比。
-### 2024.4.2
-- **[比一比](https://typing.yasinchan.com/game)功能基本完成！**
-### 2024.3.8
-- **重大更新！新增[比一比](https://typing.yasinchan.com/game)功能。**
 ### 2024.2.19
 - 优化结算页面展示样式。
 - 增加媒体查询，实现响应式页面。
@@ -49,8 +45,6 @@
 - 实现自定义主题生成至建议与反馈中
 ### 2024.1.21
 - 重构主题系统，增加自定义主题色功能
-### 2024.1.16
-- 新增排行榜
 ### 2024.1.14
 - 新增自定义模式
 ### 2024.1.13
@@ -84,7 +78,6 @@
     - https://dazi.kukuw.com
     - https://barneyzhao.gitee.io/typing-cn
     - https://typetest.io/
-    - https://typings.gg/
 - 键盘相关知识
     - https://zhuanlan.zhihu.com/p/397003447
     - https://www.zfrontier.com/app/flow/4okzKBndN774

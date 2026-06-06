@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, provide, onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
 import { KEY_CODE_ENUM } from '@/config/key';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 // @ts-ignore
 import FontFaceObserver from 'fontfaceobserver';
@@ -30,7 +30,6 @@ import IcoTranslate from '@/assets/svg/translate.svg';
 import IcoMessage from '@/assets/svg/message.svg';
 import IcoCapsLock from '@/assets/svg/caps-lock.svg';
 import IcoClose from '@/assets/svg/close.svg';
-import IcoRanking from '@/assets/svg/ranking.svg';
 import IcoSetting from '@/assets/svg/setting.svg';
 import IcoGithub from '@/assets/svg/github.svg';
 import IcoEmail from '@/assets/svg/email.svg';
@@ -56,20 +55,7 @@ userStore.setProfile();
 userStore.setConfig();
 const useConfig = useConfigStore();
 const router = useRouter();
-const route = useRoute();
 const { locale, t } = useI18n();
-
-const gameVisited = ref(!!(YStorage.get('Y_STORAGE') || {}).gameVisited);
-watch(
-  () => route.name,
-  (name) => {
-    if ((name === 'Game' || name === 'GameRoom') && !gameVisited.value) {
-      gameVisited.value = true;
-      YStorage.set('Y_STORAGE', { ...(YStorage.get('Y_STORAGE') || {}), gameVisited: true });
-    }
-  },
-  { immediate: true }
-);
 
 const { config } = storeToRefs(userStore);
 const { onlyShowMain, capsLockOn } = storeToRefs(useConfig);
@@ -310,23 +296,12 @@ function changeLocale() {
         :class="{ 'is-menu-hidden': onlyShowMain }"
         :aria-hidden="onlyShowMain"
       >
-        <router-link
-          to="/game"
-          class="y-menu__item"
-          :class="{
-            'y-menu__item--active': $route.name === 'Game' || $route.name === 'GameRoom',
-            'y-menu__item--blink':
-              !gameVisited && $route.name !== 'Game' && $route.name !== 'GameRoom'
-          }"
-          >{{ $t('game_mode') }}</router-link
-        >
         <router-link to="/" class="y-menu__item">{{ $t('limit_mode') }}</router-link>
         <router-link to="/practice" class="y-menu__item">{{ $t('free_practice') }}</router-link>
         <!--        <router-link to="/words" class="y-menu__item">词/成语模式</router-link>-->
         <router-link to="/quote" class="y-menu__item">{{ $t('time_mode') }}</router-link>
         <router-link to="/custom" class="y-menu__item">{{ $t('custom_mode') }}</router-link>
         <a href="/keyboard" class="y-menu__item y-menu__keyboard-test">{{ $t('keyboard') }}</a>
-        <router-link to="/leaderboard" class="y-menu__item">{{ $t('leaderboard') }}</router-link>
         <router-link to="/admin" class="y-menu__item" style="opacity:0.6">管理</router-link>
         <YDropDown>
           <template #title>

@@ -82,32 +82,6 @@ export default [
     }
   },
   {
-    path: '/leaderboard',
-    name: 'LeaderBoard',
-    component: () => import('@/view/LeaderBoard.vue'),
-    meta: {
-      title: '打字速度排行榜 - Typing',
-      description:
-        '查看 Typing 用户的打字速度（WPM）排行榜，按限时模式与计时模式分类排名。'
-    }
-  },
-  {
-    path: '/game',
-    name: 'Game',
-    component: () => import('@/view/Game.vue'),
-    meta: {
-      title: '比一比 - 多人在线打字 PK - Typing',
-      description:
-        '创建房间或加入好友房间，进行实时多人打字 PK，比拼速度与准确率。'
-    }
-  },
-  {
-    path: '/game/:id',
-    name: 'GameRoom',
-    component: () => import('@/view/GameRoom.vue'),
-    meta: { title: '比一比房间 - Typing', noindex: true }
-  },
-  {
     path: '/admin',
     redirect: '/admin/login'
   },

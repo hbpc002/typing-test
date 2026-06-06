@@ -3,7 +3,6 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref, unref, watch
 import { KEY_CODE_ENUM } from '@/config/key';
 import { useScroll } from '@vueuse/core';
 import {
-  type IWebsocketTypingInfo,
   type SentenceArrItem,
   type TypingRecordItemType,
   type TypingRecordType
@@ -14,7 +13,6 @@ import { replacePunctuationWithSpace } from '@/common/string';
 
 // composables
 import { useTypingChartSampler } from '@/composables/use-typing-chart-sampler';
-import { useProgressInfo } from '@/composables/use-progress-info';
 
 const LINE_HEIGHT = 70;
 const el = ref<HTMLElement | null>(null);
@@ -30,15 +28,12 @@ const props = withDefaults(
     className?: string;
     isSpaceType?: boolean; // 是否是空格模式，指需要将标点符号都转为空格
     canSpace?: boolean;
-    isShowProgress?: boolean; // 是否展示进度，配合比一比游戏，展示其他人的进度。
-    progressInfo?: IWebsocketTypingInfo;
     isStrictMode?: boolean; // 严格模式：错字不能跳过
   }>(),
   {
     showMask: true,
     isSpaceType: false,
     canSpace: false,
-    isShowProgress: false,
     isStrictMode: false
   }
 );
@@ -81,10 +76,6 @@ onMounted(async () => {
 onUnmounted(() => {
   chartSampler.stop();
 });
-
-const { grouped: progressInfoComputed, keys: progressInfoKeys } = useProgressInfo(
-  computed(() => props.progressInfo)
-);
 
 watch(
   () => {
@@ -538,18 +529,6 @@ function getTypingChartRecord() {
   };
 }
 
-function shortenString(str: string) {
-  // 如果字符串长度小于等于3，则不需要截断，直接返回原字符串
-  if (str.length <= 3) {
-    return str;
-  }
-
-  const firstChar = str.charAt(0);
-  const lastChar = str.charAt(str.length - 1);
-
-  return firstChar + '…' + lastChar;
-}
-
 function getStrictWrongCount() {
   return state.strictWrongCount;
 }
@@ -588,19 +567,8 @@ defineExpose({
           v-for="(item, index) in state.quoteArr"
           :class="['letter', item.isWrong ? 'is-wrong' : '', item.isInput ? 'is-input' : '']"
           :key="item.id"
-          >{{ item.word
-          }}<template v-if="progressInfoKeys.includes(index)"
-            ><span
-              class="y-word-input__typing-info"
-              v-for="i in progressInfoComputed[index]"
-              :style="{
-                color: i.color
-              }"
-              :key="i.name"
-              >{{ shortenString(i.name) }} : {{ i.accuracy }}</span
-            ></template
-          >
-        </span>
+          >{{ item.word }}</span
+        >
       </div>
       <div
         ref="inputAreaRef"
