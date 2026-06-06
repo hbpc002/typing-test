@@ -335,6 +335,10 @@ function reset() {
   state.strictWrongCount = 0;
 }
 
+function hasWrongChar() {
+  return state.quoteArr.some((item) => item.isWrong);
+}
+
 function beforeInputEvent(e: any) {
   state.isTyping = true;
   if (e.inputType === 'insertCompositionText') {
@@ -346,7 +350,21 @@ function beforeInputEvent(e: any) {
       state.currentComposition = '';
       return;
     }
+    if (props.isStrictMode && hasWrongChar()) {
+      // 严格模式下，错字未修正前禁止继续输入
+      e.preventDefault();
+      return;
+    }
     state.currentComposition = e.data;
+    return;
+  }
+
+  if (e.inputType === 'insertText') {
+    if (props.isStrictMode && hasWrongChar()) {
+      // 严格模式下，错字未修正前禁止继续输入
+      e.preventDefault();
+      return;
+    }
     return;
   }
 
@@ -499,6 +517,10 @@ function compositionEndEvent(e: CompositionEvent) {
   state.isComposing = false;
   const input = e.target as HTMLElement;
   handlerInput(input?.innerText);
+  if (props.isStrictMode) {
+    // 兜底：部分浏览器/IME 在 compositionend 后不触发 input 事件
+    enforceStrictMode(input);
+  }
 }
 
 function mouseDownEvent() {

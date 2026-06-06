@@ -130,4 +130,81 @@ describe('WordInput IME composition handling', () => {
 
     expect((inputArea.element as HTMLElement).innerText).toBe('x')
   })
+
+  it('严格模式下已有错字时 beforeinput(insertText) 调用 preventDefault', async () => {
+    const wrapper = await mountComponent(true, longQuote)
+    const inputArea = wrapper.find('.y-word-input__input-area')
+
+    // 先制造一个错字
+    ;(inputArea.element as HTMLElement).innerText = 'x'
+    inputArea.element.dispatchEvent(new InputEvent('input', { bubbles: true }))
+    await waitForTick()
+
+    const ev = new InputEvent('beforeinput', {
+      bubbles: true,
+      cancelable: true,
+      inputType: 'insertText',
+      data: 'y'
+    })
+    inputArea.element.dispatchEvent(ev)
+    await waitForTick()
+
+    expect(ev.defaultPrevented).toBe(true)
+  })
+
+  it('严格模式下已有错字时 beforeinput(insertCompositionText) 调用 preventDefault', async () => {
+    const wrapper = await mountComponent(true, longQuote)
+    const inputArea = wrapper.find('.y-word-input__input-area')
+
+    ;(inputArea.element as HTMLElement).innerText = 'x'
+    inputArea.element.dispatchEvent(new InputEvent('input', { bubbles: true }))
+    await waitForTick()
+
+    const ev = new InputEvent('beforeinput', {
+      bubbles: true,
+      cancelable: true,
+      inputType: 'insertCompositionText',
+      data: '你'
+    })
+    inputArea.element.dispatchEvent(ev)
+    await waitForTick()
+
+    expect(ev.defaultPrevented).toBe(true)
+  })
+
+  it('严格模式下无错字时 beforeinput 不被 preventDefault', async () => {
+    const wrapper = await mountComponent(true, longQuote)
+    const inputArea = wrapper.find('.y-word-input__input-area')
+
+    const ev = new InputEvent('beforeinput', {
+      bubbles: true,
+      cancelable: true,
+      inputType: 'insertText',
+      data: '你'
+    })
+    inputArea.element.dispatchEvent(ev)
+    await waitForTick()
+
+    expect(ev.defaultPrevented).toBe(false)
+  })
+
+  it('非严格模式下有错字时 beforeinput 也不被 preventDefault', async () => {
+    const wrapper = await mountComponent(false, longQuote)
+    const inputArea = wrapper.find('.y-word-input__input-area')
+
+    ;(inputArea.element as HTMLElement).innerText = 'xy'
+    inputArea.element.dispatchEvent(new InputEvent('input', { bubbles: true }))
+    await waitForTick()
+
+    const ev = new InputEvent('beforeinput', {
+      bubbles: true,
+      cancelable: true,
+      inputType: 'insertText',
+      data: 'a'
+    })
+    inputArea.element.dispatchEvent(ev)
+    await waitForTick()
+
+    expect(ev.defaultPrevented).toBe(false)
+  })
 })
