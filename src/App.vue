@@ -321,6 +321,7 @@ function changeLocale() {
           >{{ $t('game_mode') }}</router-link
         >
         <router-link to="/" class="y-menu__item">{{ $t('limit_mode') }}</router-link>
+        <router-link to="/practice" class="y-menu__item">{{ $t('free_practice') }}</router-link>
         <!--        <router-link to="/words" class="y-menu__item">词/成语模式</router-link>-->
         <router-link to="/quote" class="y-menu__item">{{ $t('time_mode') }}</router-link>
         <router-link to="/custom" class="y-menu__item">{{ $t('custom_mode') }}</router-link>
