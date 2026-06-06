@@ -10,6 +10,8 @@ services:
     # 避免 env_file 路径相对 CWD 解析失败时容器起不来）
     env_file:
       - ./server/.env
+    environment:
+      - TZ=Asia/Shanghai
     volumes:
       - ./server/.env:/app/.env:ro
       - ./typing-data:/data
