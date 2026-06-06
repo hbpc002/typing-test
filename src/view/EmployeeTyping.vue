@@ -38,7 +38,7 @@ const state = reactive({
   intervalId: null as null | number,
   isTyping: false,
   selectTime: 60,
-  isStrictMode: false,
+  isStrictMode: true,
   isSpaceType: false,
   showCountDown: true,
   showSetTime: false,
