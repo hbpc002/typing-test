@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { reactive, onMounted, inject } from 'vue';
-import { getRecords, exportRecords, getStats } from '@/request';
+import { reactive, ref, computed, onMounted, inject } from 'vue';
+import { getRecords, exportRecords, getStats, deleteRecord, batchDeleteRecords } from '@/request';
 import AdminTabs from '@/components/AdminTabs.vue';
 
 const message: any = inject('message');
+const confirm: any = inject('confirm');
 
 const state = reactive({
   records: [] as any[],
@@ -21,6 +22,17 @@ const state = reactive({
     avg_wpm: 0,
     avg_accuracy: 0,
   },
+  selectedIds: [] as number[],
+  deleting: false,
+});
+
+const allChecked = computed(() => {
+  return state.records.length > 0 && state.records.every((r) => state.selectedIds.includes(r.id));
+});
+
+const isIndeterminate = computed(() => {
+  const len = state.selectedIds.length;
+  return len > 0 && len < state.records.length;
 });
 
 async function loadRecords() {
@@ -29,6 +41,7 @@ async function loadRecords() {
     const res = await getRecords(state.filter);
     state.records = res.data?.result?.records || [];
     state.total = res.data?.result?.total || 0;
+    state.selectedIds = state.selectedIds.filter((id) => state.records.some((r) => r.id === id));
   } catch {
     message({ message: '加载记录失败', type: 'error' });
   } finally {
@@ -57,6 +70,70 @@ async function handleExport() {
   } catch {
     message({ message: '导出失败', type: 'error' });
   }
+}
+
+function toggleAll(checked: boolean) {
+  if (checked) {
+    state.selectedIds = state.records.map((r) => r.id);
+  } else {
+    state.selectedIds = [];
+  }
+}
+
+function toggleOne(id: number, checked: boolean) {
+  if (checked) {
+    if (!state.selectedIds.includes(id)) state.selectedIds.push(id);
+  } else {
+    state.selectedIds = state.selectedIds.filter((x) => x !== id);
+  }
+}
+
+function handleSingleDelete(record: any) {
+  confirm({
+    title: '删除记录',
+    content: `确定删除「${record.employee_name}」的「${record.article_title}」成绩？此操作不可撤销。`,
+    ok: '删除',
+    cancel: '取消',
+    confirm: async () => {
+      if (state.deleting) return;
+      state.deleting = true;
+      try {
+        await deleteRecord(record.id);
+        state.selectedIds = state.selectedIds.filter((x) => x !== record.id);
+        await Promise.all([loadRecords(), loadStats()]);
+        message({ message: '删除成功' });
+      } catch (e: any) {
+        message({ message: e?.response?.data?.message || '删除失败', type: 'error' });
+      } finally {
+        state.deleting = false;
+      }
+    }
+  });
+}
+
+function handleBatchDelete() {
+  const ids = [...state.selectedIds];
+  if (ids.length === 0) return;
+  confirm({
+    title: '批量删除',
+    content: `确定删除选中的 ${ids.length} 条成绩记录？此操作不可撤销。`,
+    ok: '删除',
+    cancel: '取消',
+    confirm: async () => {
+      if (state.deleting) return;
+      state.deleting = true;
+      try {
+        await batchDeleteRecords(ids);
+        state.selectedIds = [];
+        await Promise.all([loadRecords(), loadStats()]);
+        message({ message: '批量删除成功' });
+      } catch (e: any) {
+        message({ message: e?.response?.data?.message || '批量删除失败', type: 'error' });
+      } finally {
+        state.deleting = false;
+      }
+    }
+  });
 }
 
 onMounted(() => {
@@ -95,6 +172,14 @@ onMounted(() => {
       <input v-model="state.filter.start_date" type="date" class="y-admin-filter-input" @change="loadRecords" />
       <input v-model="state.filter.end_date" type="date" class="y-admin-filter-input" @change="loadRecords" />
       <button class="y-admin-btn" @click="handleExport">导出 CSV</button>
+      <button
+        v-if="state.selectedIds.length > 0"
+        class="y-admin-btn y-admin-btn--danger"
+        :disabled="state.deleting"
+        @click="handleBatchDelete"
+      >
+        批量删除 ({{ state.selectedIds.length }})
+      </button>
     </div>
 
     <div v-if="state.loading" style="text-align: center; padding: 40px; color: $gray-04">
@@ -104,6 +189,14 @@ onMounted(() => {
       <table class="y-admin-table">
         <thead>
           <tr>
+            <th class="y-admin-table__check">
+              <input
+                type="checkbox"
+                :checked="allChecked"
+                :indeterminate="isIndeterminate"
+                @change="toggleAll(($event.target as HTMLInputElement).checked)"
+              />
+            </th>
             <th>姓名</th>
             <th>班组</th>
             <th>文章</th>
@@ -113,10 +206,22 @@ onMounted(() => {
             <th>总按键</th>
             <th>错误</th>
             <th>时间</th>
+            <th class="y-admin-table__action">操作</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="r in state.records" :key="r.id">
+          <tr
+            v-for="r in state.records"
+            :key="r.id"
+            :class="{ 'is-selected': state.selectedIds.includes(r.id) }"
+          >
+            <td class="y-admin-table__check">
+              <input
+                type="checkbox"
+                :checked="state.selectedIds.includes(r.id)"
+                @change="toggleOne(r.id, ($event.target as HTMLInputElement).checked)"
+              />
+            </td>
             <td>{{ r.employee_name }}</td>
             <td>{{ r.employee_group }}</td>
             <td>{{ r.article_title }}</td>
@@ -126,6 +231,9 @@ onMounted(() => {
             <td>{{ r.total_keystrokes }}</td>
             <td>{{ r.wrong_keystrokes }}</td>
             <td style="font-size: 12px; white-space: nowrap">{{ r.created_at }}</td>
+            <td class="y-admin-table__action">
+              <span class="y-admin-link--danger" @click="handleSingleDelete(r)">删除</span>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -193,6 +301,18 @@ onMounted(() => {
     background: $main-color;
     color: $label-white;
   }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  &--danger {
+    border-color: #e23;
+    color: #e23;
+    &:hover {
+      background: #e23;
+      color: $label-white;
+    }
+  }
 }
 .y-admin-table-wrap {
   overflow-x: auto;
@@ -213,6 +333,31 @@ onMounted(() => {
   }
   tr:hover td {
     background: rgba($main-color, 0.05);
+  }
+  tr.is-selected td {
+    background: rgba($main-color, 0.1);
+  }
+  &__check {
+    width: 40px;
+    text-align: center !important;
+    input[type='checkbox'] {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
+  }
+  &__action {
+    width: 60px;
+    text-align: center !important;
+  }
+}
+.y-admin-link--danger {
+  color: #e23;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  &:hover {
+    opacity: 0.7;
+    text-decoration: underline;
   }
 }
 </style>

@@ -146,3 +146,11 @@ export const exportRecords = (params?: {
 export const getStats = () => {
   return axios.get('/api/records/stats', { headers: authHeaders() });
 };
+
+export const deleteRecord = (id: number) => {
+  return axios.delete(`/api/records/${id}`, { headers: authHeaders() });
+};
+
+export const batchDeleteRecords = (ids: number[]) => {
+  return axios.post('/api/records/batch-delete', { ids }, { headers: authHeaders() });
+};
