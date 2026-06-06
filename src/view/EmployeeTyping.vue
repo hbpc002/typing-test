@@ -185,6 +185,7 @@ async function refresh() {
 
 function selectTime(time: number) {
   const wasTyping = state.isTyping;
+  state.selectTime = time;
   state.countDown = time;
   if (wasTyping) {
     wordInputRef.value?.clearInput();
@@ -232,6 +233,7 @@ function setTime() {
   }
   state.isTyping = false;
   state.showSetTime = false;
+  state.selectTime = Number(state.setCountDown);
   state.countDown = Number(state.setCountDown);
 }
 
