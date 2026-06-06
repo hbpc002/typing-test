@@ -154,3 +154,11 @@ export const deleteRecord = (id: number) => {
 export const batchDeleteRecords = (ids: number[]) => {
   return axios.post('/api/records/batch-delete', { ids }, { headers: authHeaders() });
 };
+
+export const getSettings = () => {
+  return axios.get('/api/settings', { headers: authHeaders() });
+};
+
+export const updateSetting = (key: string, value: string) => {
+  return axios.put(`/api/settings/${key}`, { value }, { headers: authHeaders() });
+};

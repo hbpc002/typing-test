@@ -6,6 +6,7 @@ const route = useRoute();
 const tabs = [
   { name: 'AdminArticles', label: '文章管理' },
   { name: 'AdminScores', label: '成绩查询' },
+  { name: 'AdminSettings', label: '系统设置' },
 ];
 </script>
 

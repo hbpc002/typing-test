@@ -8,7 +8,8 @@ function makeRouter() {
     history: createMemoryHistory(),
     routes: [
       { path: '/admin/articles', name: 'AdminArticles', component: { template: '<div />' } },
-      { path: '/admin/scores', name: 'AdminScores', component: { template: '<div />' } }
+      { path: '/admin/scores', name: 'AdminScores', component: { template: '<div />' } },
+      { path: '/admin/settings', name: 'AdminSettings', component: { template: '<div />' } }
     ]
   })
 }
@@ -18,7 +19,7 @@ describe('AdminTabs', () => {
     document.body.innerHTML = ''
   })
 
-  it('渲染两个 tab：文章管理、成绩查询', async () => {
+  it('渲染三个 tab：文章管理、成绩查询、系统设置', async () => {
     const router = makeRouter()
     router.push({ name: 'AdminArticles' })
     await router.isReady()
@@ -29,9 +30,10 @@ describe('AdminTabs', () => {
     await flushPromises()
 
     const items = wrapper.findAll('.y-admin-tabs__item')
-    expect(items.length).toBe(2)
+    expect(items.length).toBe(3)
     expect(items[0].text()).toBe('文章管理')
     expect(items[1].text()).toBe('成绩查询')
+    expect(items[2].text()).toBe('系统设置')
   })
 
   it('当前路由为 AdminArticles 时，文章管理 tab 处于激活态', async () => {
@@ -47,6 +49,7 @@ describe('AdminTabs', () => {
     const items = wrapper.findAll('.y-admin-tabs__item')
     expect(items[0].classes()).toContain('y-admin-tabs__item--active')
     expect(items[1].classes()).not.toContain('y-admin-tabs__item--active')
+    expect(items[2].classes()).not.toContain('y-admin-tabs__item--active')
   })
 
   it('当前路由为 AdminScores 时，成绩查询 tab 处于激活态', async () => {
@@ -62,6 +65,23 @@ describe('AdminTabs', () => {
     const items = wrapper.findAll('.y-admin-tabs__item')
     expect(items[0].classes()).not.toContain('y-admin-tabs__item--active')
     expect(items[1].classes()).toContain('y-admin-tabs__item--active')
+    expect(items[2].classes()).not.toContain('y-admin-tabs__item--active')
+  })
+
+  it('当前路由为 AdminSettings 时，系统设置 tab 处于激活态', async () => {
+    const router = makeRouter()
+    router.push({ name: 'AdminSettings' })
+    await router.isReady()
+
+    const wrapper = mount(AdminTabs, {
+      global: { plugins: [router] }
+    })
+    await flushPromises()
+
+    const items = wrapper.findAll('.y-admin-tabs__item')
+    expect(items[0].classes()).not.toContain('y-admin-tabs__item--active')
+    expect(items[1].classes()).not.toContain('y-admin-tabs__item--active')
+    expect(items[2].classes()).toContain('y-admin-tabs__item--active')
   })
 
   it('两个 tab 都是 router-link，点击会切换路由', async () => {

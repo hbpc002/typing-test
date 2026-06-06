@@ -5,6 +5,7 @@ import { koaBody } from 'koa-body';
 import Router from 'koa-router';
 import articlesRouter from './routes/articles';
 import recordsRouter from './routes/records';
+import settingsRouter from './routes/settings';
 import { validateAdminPassword, signToken } from './auth';
 
 const app = new Koa();
@@ -41,6 +42,8 @@ app.use(articlesRouter.routes());
 app.use(articlesRouter.allowedMethods());
 app.use(recordsRouter.routes());
 app.use(recordsRouter.allowedMethods());
+app.use(settingsRouter.routes());
+app.use(settingsRouter.allowedMethods());
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

@@ -45,7 +45,26 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_records_name ON records(employee_name);
   CREATE INDEX IF NOT EXISTS idx_records_group ON records(employee_group);
   CREATE INDEX IF NOT EXISTS idx_records_created ON records(created_at);
+
+  CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL DEFAULT '',
+    updated_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+  );
 `);
+
+const SETTING_DEFAULTS: Record<string, string> = {
+  allow_strict_mode_toggle: '1'
+};
+const stmtSettingGet = db.prepare('SELECT value FROM settings WHERE key = ?');
+const stmtSettingInsert = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)');
+for (const [k, v] of Object.entries(SETTING_DEFAULTS)) {
+  const row = stmtSettingGet.get(k) as any;
+  if (!row) {
+    stmtSettingInsert.run(k, v);
+    console.log(`Seeded setting ${k}=${v}`);
+  }
+}
 
 const articleCount = db.prepare('SELECT COUNT(*) as c FROM articles').get() as any;
 if (articleCount.c === 0) {

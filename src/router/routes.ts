@@ -104,6 +104,12 @@ export default [
     meta: { title: '成绩查询 - Typing', noindex: true }
   },
   {
+    path: '/admin/settings',
+    name: 'AdminSettings',
+    component: () => import('@/view/AdminSettings.vue'),
+    meta: { title: '系统设置 - Typing', noindex: true }
+  },
+  {
     path: '/:catchAll(.*)',
     redirect: '/'
   }

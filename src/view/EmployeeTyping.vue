@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, computed, nextTick, watch, inject } from 'vue';
+import { reactive, ref, computed, nextTick, watch, onMounted, inject } from 'vue';
 import WordInput from '@/components/WordInput.vue';
 import Tooltip from '@/components/ui/Tooltip.vue';
 import YDropDown from '@/components/ui/DropDown.vue';
@@ -8,7 +8,7 @@ import YModal from '@/components/ui/Modal.vue';
 import { useExamStore } from '@/store/exam';
 import { storeToRefs } from 'pinia';
 import { useConfigStore } from '@/store/config';
-import { getArticles, saveRecord } from '@/request';
+import { getArticles, saveRecord, getSettings } from '@/request';
 import type { TypingRecordType, TypingRecordItemType } from '@/types';
 
 import IcoSetting from '@/assets/svg/setting.svg';
@@ -52,6 +52,7 @@ const state = reactive({
   totalKeystrokes: 0,
   wrongKeystrokes: 0,
   strictWrongCount: 0,
+  allowStrictModeToggle: true,
   typingChartSpeed: [] as number[],
   lastTypingChartSpeed: [] as number[],
   typingChartAccuracy: [] as number[],
@@ -171,6 +172,18 @@ function goToSelect() {
   loadArticles();
 }
 
+async function loadSettings() {
+  try {
+    const res = await getSettings();
+    const map = res.data?.result || {};
+    const allow = (map.allow_strict_mode_toggle ?? '1') === '1';
+    state.allowStrictModeToggle = allow;
+    state.isStrictMode = true;
+  } catch {
+    state.allowStrictModeToggle = true;
+  }
+}
+
 async function loadArticles() {
   state.articlesLoading = true;
   try {
@@ -211,6 +224,7 @@ function isTypingFunc() {
 }
 
 function toggleStrictMode() {
+  if (!state.allowStrictModeToggle) return;
   const wasTyping = state.isTyping;
   if (wasTyping) {
     refresh();
@@ -276,6 +290,10 @@ function submitForm() {
   examStore.setEmployee(state.name.trim(), state.group.trim());
   goToSelect();
 }
+
+onMounted(() => {
+  loadSettings();
+});
 </script>
 
 <template>
@@ -349,7 +367,11 @@ function submitForm() {
         </div>
         <div
           class="y-exam-typing__setting-item y-exam-typing__set-time"
-          :class="{ 'y-exam-typing__time-item--active': state.isStrictMode }"
+          :class="{
+            'y-exam-typing__time-item--active': state.isStrictMode,
+            'y-exam-typing__set-time--locked': !state.allowStrictModeToggle
+          }"
+          :title="!state.allowStrictModeToggle ? '管理员已关闭切换功能' : ''"
           @click="toggleStrictMode"
         >
           <span>{{ $t('strict_mode') }}</span>
@@ -655,6 +677,11 @@ function submitForm() {
   transition: color 0.2s ease;
   &:hover { color: $main-color; }
   &.y-exam-typing__time-item--active { color: $main-color; }
+}
+.y-exam-typing__set-time--locked {
+  cursor: not-allowed !important;
+  color: $gray-04 !important;
+  &:hover { color: $gray-04 !important; }
 }
 .y-exam-typing__settings-menu {
   min-width: 160px;
