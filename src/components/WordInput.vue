@@ -22,7 +22,6 @@ const { y } = useScroll(el, { behavior: 'smooth' });
 const whiteList = ['”', '》', '}', '）', '】', '’']; // 白名单，这些字符不会被标记为错误
 const compositionList = ['“”', '《》', '{}', '（）', '【】', '‘’']; // composition 状态下的字符
 const inputAreaRef = ref<HTMLElement | null>(null);
-let compositionJustEnded = false;
 
 const props = withDefaults(
   defineProps<{
@@ -319,7 +318,8 @@ watch(
         emit('is-finished');
       }
     });
-  }
+  },
+  { flush: 'sync' }
 );
 
 function typingEnd() {
@@ -453,11 +453,8 @@ function inputEvent(e: Event) {
       input.innerHTML = '';
     }
     handlerInput(input?.innerText);
-    if (props.isStrictMode && !compositionJustEnded) {
+    if (props.isStrictMode) {
       enforceStrictMode(input);
-    }
-    if (compositionJustEnded) {
-      compositionJustEnded = false;
     }
   }
 }
@@ -500,7 +497,6 @@ function compositionUpdateEvent() {
 }
 function compositionEndEvent(e: CompositionEvent) {
   state.isComposing = false;
-  compositionJustEnded = true;
   const input = e.target as HTMLElement;
   handlerInput(input?.innerText);
 }

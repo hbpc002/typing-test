@@ -106,4 +106,28 @@ describe('WordInput IME composition handling', () => {
     expect(letter0.classes()).toContain('is-input')
     expect(letter0.classes()).toContain('is-wrong')
   })
+
+  it('严格模式下 IME 提交含错字时立即截断后续字符', async () => {
+    const wrapper = await mountComponent(true, longQuote)
+    const inputArea = wrapper.find('.y-word-input__input-area')
+
+    ;(inputArea.element as HTMLElement).innerText = 'xy'
+    inputArea.element.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }))
+    inputArea.element.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true }))
+    inputArea.element.dispatchEvent(new InputEvent('input', { bubbles: true }))
+    await waitForTick()
+
+    expect((inputArea.element as HTMLElement).innerText).toBe('x')
+  })
+
+  it('严格模式下普通输入第二个错字后立即截断', async () => {
+    const wrapper = await mountComponent(true, longQuote)
+    const inputArea = wrapper.find('.y-word-input__input-area')
+
+    ;(inputArea.element as HTMLElement).innerText = 'xy'
+    inputArea.element.dispatchEvent(new InputEvent('input', { bubbles: true }))
+    await waitForTick()
+
+    expect((inputArea.element as HTMLElement).innerText).toBe('x')
+  })
 })
