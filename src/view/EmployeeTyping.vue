@@ -15,6 +15,8 @@ import IcoSetting from '@/assets/svg/setting.svg';
 import IcoChange from '@/assets/svg/change.svg';
 import IcoSelect from '@/assets/svg/select.svg';
 import IcoUnSelect from '@/assets/svg/un-select.svg';
+import ResultContent from '@/components/ResultContent.vue';
+import { handleChart } from '@/common/chart';
 
 const message: any = inject('message');
 const examStore = useExamStore();
@@ -51,6 +53,10 @@ const state = reactive({
   wrongKeystrokes: 0,
   strictWrongCount: 0,
   showTypingSettings: true,
+  typingChartSpeed: [] as number[],
+  lastTypingChartSpeed: [] as number[],
+  typingChartAccuracy: [] as number[],
+  lastTypingChartAccuracy: [] as number[],
 });
 
 let idleTimer: number | null = null;
@@ -106,6 +112,20 @@ function finishTyping() {
   state.strictWrongCount = wordInputRef.value?.getStrictWrongCount() || 0;
   wordInputRef.value?.typingEnd();
   calcResult();
+
+  const typingChartRecord = wordInputRef.value?.getTypingChartRecord();
+  const currentTitle = state.selectedArticle?.title || '';
+  const {
+    typingChartSpeed,
+    lastTypingChartSpeed,
+    typingChartAccuracy,
+    lastTypingChartAccuracy
+  } = handleChart(typingChartRecord, currentTitle);
+  state.typingChartSpeed = typingChartSpeed;
+  state.lastTypingChartSpeed = lastTypingChartSpeed;
+  state.typingChartAccuracy = typingChartAccuracy;
+  state.lastTypingChartAccuracy = lastTypingChartAccuracy;
+
   state.step = 'result';
 }
 
@@ -384,30 +404,42 @@ function submitForm() {
       <div class="y-exam-result__header">
         <h2>{{ examStore.employeeName }} · {{ examStore.employeeGroup }}</h2>
         <div class="y-exam-result__article">{{ state.selectedArticle?.title }}</div>
+        <div class="y-exam-result__stats">
+          <div class="y-exam-result-stat">
+            <div class="y-exam-result-stat__value">{{ state.wpm }}</div>
+            <div class="y-exam-result-stat__label">WPM</div>
+          </div>
+          <div class="y-exam-result-stat">
+            <div class="y-exam-result-stat__value">{{ state.accuracy }}</div>
+            <div class="y-exam-result-stat__label">正确率</div>
+          </div>
+          <div class="y-exam-result-stat">
+            <div class="y-exam-result-stat__value">{{ state.totalWord }}</div>
+            <div class="y-exam-result-stat__label">输入字数</div>
+          </div>
+          <div class="y-exam-result-stat">
+            <div class="y-exam-result-stat__value">{{ state.wrongWord }}</div>
+            <div class="y-exam-result-stat__label">错误字数</div>
+          </div>
+        </div>
+        <div class="y-exam-result__actions">
+          <button class="y-exam-btn y-exam-btn--primary" @click="saveResult">保存成绩</button>
+          <button class="y-exam-btn" @click="restart">再测一次</button>
+          <button class="y-exam-btn y-exam-btn--cancel" @click="changePerson">换人</button>
+        </div>
       </div>
-      <div class="y-exam-result__stats">
-        <div class="y-exam-result-stat">
-          <div class="y-exam-result-stat__value">{{ state.wpm }}</div>
-          <div class="y-exam-result-stat__label">WPM</div>
-        </div>
-        <div class="y-exam-result-stat">
-          <div class="y-exam-result-stat__value">{{ state.accuracy }}</div>
-          <div class="y-exam-result-stat__label">正确率</div>
-        </div>
-        <div class="y-exam-result-stat">
-          <div class="y-exam-result-stat__value">{{ state.totalWord }}</div>
-          <div class="y-exam-result-stat__label">输入字数</div>
-        </div>
-        <div class="y-exam-result-stat">
-          <div class="y-exam-result-stat__value">{{ state.wrongWord }}</div>
-          <div class="y-exam-result-stat__label">错误字数</div>
-        </div>
-      </div>
-      <div class="y-exam-result__actions">
-        <button class="y-exam-btn y-exam-btn--primary" @click="saveResult">保存成绩</button>
-        <button class="y-exam-btn" @click="restart">再测一次</button>
-        <button class="y-exam-btn y-exam-btn--cancel" @click="changePerson">换人</button>
-      </div>
+      <ResultContent
+        type="time"
+        :typing-record="state.typingRecord"
+        @restart="restart"
+        :total-time="state.selectTime"
+        :is-positive="false"
+        :strict-wrong-count="state.strictWrongCount"
+        :chart-speed="state.typingChartSpeed"
+        :last-chart-speed="state.lastTypingChartSpeed"
+        :chart-accuracy="state.typingChartAccuracy"
+        :last-chart-accuracy="state.lastTypingChartAccuracy"
+      ></ResultContent>
     </div>
   </main>
   <YModal :show="state.showSetTime" @close="state.showSetTime = false" @confirm="setTime">
