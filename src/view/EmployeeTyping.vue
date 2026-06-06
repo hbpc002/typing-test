@@ -139,7 +139,9 @@ function calcResult() {
   state.totalKeystrokes = totalKeystrokes;
   state.wrongKeystrokes = wrongKeystrokes;
   state.accuracy = totalWord ? ((totalWord - wrongWord) / totalWord * 100).toFixed(0) + '%' : '0%';
-  state.wpm = totalWord ? Math.round((totalWord - wrongWord) / 60 * 60) : 0;
+  state.wpm = state.selectTime
+    ? Math.round(((totalWord - wrongWord) / state.selectTime) * 60)
+    : 0;
 }
 
 async function saveResult() {
