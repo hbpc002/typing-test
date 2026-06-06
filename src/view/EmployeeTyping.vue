@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, computed, nextTick, onUnmounted, watch, inject } from 'vue';
+import { reactive, ref, computed, nextTick, watch, inject } from 'vue';
 import WordInput from '@/components/WordInput.vue';
 import Tooltip from '@/components/ui/Tooltip.vue';
 import YDropDown from '@/components/ui/DropDown.vue';
@@ -52,25 +52,10 @@ const state = reactive({
   totalKeystrokes: 0,
   wrongKeystrokes: 0,
   strictWrongCount: 0,
-  showTypingSettings: true,
   typingChartSpeed: [] as number[],
   lastTypingChartSpeed: [] as number[],
   typingChartAccuracy: [] as number[],
   lastTypingChartAccuracy: [] as number[],
-});
-
-let idleTimer: number | null = null;
-
-function onKeyDown() {
-  state.showTypingSettings = false;
-  if (idleTimer !== null) clearTimeout(idleTimer);
-  idleTimer = window.setTimeout(() => {
-    state.showTypingSettings = true;
-  }, 2000);
-}
-
-onUnmounted(() => {
-  if (idleTimer !== null) clearTimeout(idleTimer);
 });
 
 watch(() => state.isTyping, (val) => {
@@ -340,62 +325,63 @@ function submitForm() {
         </div>
         <div class="y-exam-article-title">{{ state.selectedArticle?.title }}</div>
       </div>
-      <div v-show="state.showTypingSettings" class="y-exam-typing__setting">
-        <div class="y-exam-typing__setting-item y-exam-typing__refresh" @click="refresh">
-          <Tooltip content="刷新">
-            <IcoChange></IcoChange>
-          </Tooltip>
-        </div>
-        <div class="y-exam-typing__setting-item y-exam-typing__time">
-          <Tooltip :content="$t('select_countdown')">
-            <span
-              v-for="item in customTime"
-              :key="item"
-              class="y-exam-typing__time-item"
-              :class="{ 'y-exam-typing__time-item--active': state.countDown === item }"
-              @click="selectTime(item)"
-            >{{ item }}</span>
-          </Tooltip>
-        </div>
-        <div
-          class="y-exam-typing__setting-item y-exam-typing__set-time"
-          :class="{ 'y-exam-typing__time-item--active': state.isStrictMode }"
-          @click="toggleStrictMode"
-        >
-          <span>{{ $t('strict_mode') }}</span>
-        </div>
-        <div class="y-exam-typing__setting-item y-exam-typing__settings">
-          <YDropDown>
-            <template #title>
-              <Tooltip content="设置">
-                <IcoSetting></IcoSetting>
-              </Tooltip>
-            </template>
-            <template #menu>
-              <div class="y-exam-typing__settings-menu">
-                <div class="y-exam-typing__settings-item" @click="state.showCountDown = !state.showCountDown">
-                  <component :is="state.showCountDown ? IcoSelect : IcoUnSelect" />
-                  <span>{{ $t('display_countdown') }}</span>
+      <Transition name="menu">
+        <div v-show="!onlyShowMain" class="y-exam-typing__setting">
+          <div class="y-exam-typing__setting-item y-exam-typing__refresh" @click="refresh">
+            <Tooltip content="刷新">
+              <IcoChange></IcoChange>
+            </Tooltip>
+          </div>
+          <div class="y-exam-typing__setting-item y-exam-typing__time">
+            <Tooltip :content="$t('select_countdown')">
+              <span
+                v-for="item in customTime"
+                :key="item"
+                class="y-exam-typing__time-item"
+                :class="{ 'y-exam-typing__time-item--active': state.countDown === item }"
+                @click="selectTime(item)"
+              >{{ item }}</span>
+            </Tooltip>
+          </div>
+          <div
+            class="y-exam-typing__setting-item y-exam-typing__set-time"
+            :class="{ 'y-exam-typing__time-item--active': state.isStrictMode }"
+            @click="toggleStrictMode"
+          >
+            <span>{{ $t('strict_mode') }}</span>
+          </div>
+          <div class="y-exam-typing__setting-item y-exam-typing__settings">
+            <YDropDown>
+              <template #title>
+                <Tooltip content="设置">
+                  <IcoSetting></IcoSetting>
+                </Tooltip>
+              </template>
+              <template #menu>
+                <div class="y-exam-typing__settings-menu">
+                  <div class="y-exam-typing__settings-item" @click="state.showCountDown = !state.showCountDown">
+                    <component :is="state.showCountDown ? IcoSelect : IcoUnSelect" />
+                    <span>{{ $t('display_countdown') }}</span>
+                  </div>
+                  <div class="y-exam-typing__settings-item" @click="changePunctuation">
+                    <component :is="state.isSpaceType ? IcoSelect : IcoUnSelect" />
+                    <span>{{ state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space') }}</span>
+                  </div>
+                  <div class="y-exam-typing__settings-item" @click="state.showSetTime = true">
+                    <span>{{ $t('custom_countdown') }}</span>
+                  </div>
                 </div>
-                <div class="y-exam-typing__settings-item" @click="changePunctuation">
-                  <component :is="state.isSpaceType ? IcoSelect : IcoUnSelect" />
-                  <span>{{ state.isSpaceType ? $t('space_to_punctuation') : $t('punctuation_to_space') }}</span>
-                </div>
-                <div class="y-exam-typing__settings-item" @click="state.showSetTime = true">
-                  <span>{{ $t('custom_countdown') }}</span>
-                </div>
-              </div>
-            </template>
-          </YDropDown>
+              </template>
+            </YDropDown>
+          </div>
         </div>
-      </div>
+      </Transition>
       <WordInput
         ref="wordInputRef"
         :quote="state.selectedArticle?.content || ''"
         :is-strict-mode="state.isStrictMode"
         :is-space-type="state.isSpaceType"
         @is-typing="isTypingFunc"
-        @keydown-event="onKeyDown"
       />
     </div>
 

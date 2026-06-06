@@ -122,11 +122,11 @@ onBeforeUnmount(() => {
 function handleKeyDown(e: KeyboardEvent) {
   if (e.code === KEY_CODE_ENUM['ESCAPE']) {
     useConfig.setIsEscape(true);
-    useConfig.setOnlyShowMain(true);
   }
   if (e.code === KEY_CODE_ENUM['CAPS_LOCK']) {
     useConfig.setCapsLockOn(true);
   }
+  useConfig.setOnlyShowMain(true);
 }
 
 function handleKeyUp(e: KeyboardEvent) {
@@ -286,58 +286,54 @@ function changeLocale() {
     <img src="https://file.yasinchan.com/3mJW6cYdhhonSKsrLNIrPRescfb9202i/1757293763.png" alt="" />
   </div>
   <div class="y-app">
-    <header :class="{ 'is-menu-area-dim': onlyShowMain }">
+    <header>
       <div class="y-info" :class="[onlyShowMain ? 'y-info__disabled' : '']">
         <a href="/" class="y-info__title main-color"><span class="y-info__cap">T</span>yping</a>
       </div>
 
-      <div
-        class="y-menu"
-        :class="{ 'is-menu-hidden': onlyShowMain }"
-        :aria-hidden="onlyShowMain"
-      >
-        <router-link to="/" class="y-menu__item">{{ $t('limit_mode') }}</router-link>
-        <router-link to="/practice" class="y-menu__item">{{ $t('free_practice') }}</router-link>
-        <!--        <router-link to="/words" class="y-menu__item">词/成语模式</router-link>-->
-        <router-link to="/quote" class="y-menu__item">{{ $t('time_mode') }}</router-link>
-        <router-link to="/custom" class="y-menu__item">{{ $t('custom_mode') }}</router-link>
-        <a href="/keyboard" class="y-menu__item y-menu__keyboard-test">{{ $t('keyboard') }}</a>
-        <router-link to="/admin" class="y-menu__item" style="opacity:0.6">管理</router-link>
-        <YDropDown>
-          <template #title>
-            <div class="y-menu__item flex-center--y">
-              <IcoSetting></IcoSetting>
-            </div>
-          </template>
-          <template #menu>
-            <div class="y-auth__menu">
-              <div class="y-menu__change y-menu__change-font" @click="changeFont">
-                {{ $t('change_font') }}
+      <Transition name="menu">
+        <div class="y-menu" v-show="!onlyShowMain">
+          <router-link to="/" class="y-menu__item">{{ $t('limit_mode') }}</router-link>
+          <router-link to="/practice" class="y-menu__item">{{ $t('free_practice') }}</router-link>
+          <!--        <router-link to="/words" class="y-menu__item">词/成语模式</router-link>-->
+          <router-link to="/quote" class="y-menu__item">{{ $t('time_mode') }}</router-link>
+          <router-link to="/custom" class="y-menu__item">{{ $t('custom_mode') }}</router-link>
+          <a href="/keyboard" class="y-menu__item y-menu__keyboard-test">{{ $t('keyboard') }}</a>
+          <router-link to="/admin" class="y-menu__item" style="opacity:0.6">管理</router-link>
+          <YDropDown>
+            <template #title>
+              <div class="y-menu__item flex-center--y">
+                <IcoSetting></IcoSetting>
               </div>
-              <div class="y-menu__change" @click="changeTheme('normal')">
-                {{ $t('change_theme') }}
+            </template>
+            <template #menu>
+              <div class="y-auth__menu">
+                <div class="y-menu__change y-menu__change-font" @click="changeFont">
+                  {{ $t('change_font') }}
+                </div>
+                <div class="y-menu__change" @click="changeTheme('normal')">
+                  {{ $t('change_theme') }}
+                </div>
+                <div class="y-menu__change" @click="suggestClick">
+                  {{ $t('suggestions_and_feedback') }}
+                </div>
               </div>
-              <div class="y-menu__change" @click="suggestClick">
-                {{ $t('suggestions_and_feedback') }}
-              </div>
-            </div>
-          </template>
-        </YDropDown>
-        <div class="y-menu__item" @click="changeLocale">
-          <IcoTranslate></IcoTranslate>
+            </template>
+          </YDropDown>
+          <div class="y-menu__item" @click="changeLocale">
+            <IcoTranslate></IcoTranslate>
+          </div>
+          <div class="y-menu__item y-menu__item-auth">
+            <auth ref="authRef"></auth>
+          </div>
         </div>
-        <div class="y-menu__item y-menu__item-auth">
-          <auth ref="authRef"></auth>
-        </div>
-      </div>
+      </Transition>
     </header>
 
     <router-view></router-view>
 
-    <footer
-      :class="['flex-center', { 'is-menu-area-dim': onlyShowMain, 'is-menu-hidden': onlyShowMain }]"
-      :aria-hidden="onlyShowMain"
-    >
+    <Transition name="menu">
+      <footer v-show="!onlyShowMain" class="flex-center">
       <div class="y-app__footer-group">
         <a
           class="flex-center--y y-app__footer"
@@ -392,6 +388,7 @@ function changeLocale() {
         </span>
       </div>
     </footer>
+    </Transition>
   </div>
 
   <Transition name="menu">
@@ -401,14 +398,15 @@ function changeLocale() {
     </div>
   </Transition>
 
-  <Tooltip
-    v-if="!onlyShowMain"
-    class="y-submit-suggest"
-    :class="{ 'is-menu-hidden': onlyShowMain }"
-    :content="$t('suggestions_and_feedback')"
-  >
-    <IcoMessage @click="suggestClick" class="y-submit-suggest__svg"></IcoMessage>
-  </Tooltip>
+  <Transition name="menu">
+    <Tooltip
+      v-if="!onlyShowMain"
+      class="y-submit-suggest"
+      :content="$t('suggestions_and_feedback')"
+    >
+      <IcoMessage @click="suggestClick" class="y-submit-suggest__svg"></IcoMessage>
+    </Tooltip>
+  </Transition>
   <SuggestModal
     ref="suggestModalRef"
     v-if="obj.showSuggest"
@@ -756,17 +754,6 @@ main {
 .y-app header,
 .y-app footer {
   transition: background-color 0.3s ease;
-}
-
-.is-menu-area-dim {
-  background-color: rgba(0, 0, 0, 0.06);
-}
-
-.is-menu-hidden {
-  opacity: 0;
-  pointer-events: none;
-  user-select: none;
-  transition: opacity 0.3s ease;
 }
 
 @keyframes title-blink {

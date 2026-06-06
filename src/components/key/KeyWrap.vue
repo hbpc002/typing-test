@@ -65,13 +65,11 @@ onBeforeUnmount(() => {
   <div class="y-key-wrap" :class="className">
     <slot :keys-pressed="state.keysPressed"></slot>
   </div>
-  <div
-    class="y-key-wrap__title"
-    :class="{ 'is-menu-hidden': onlyShowMain }"
-    :aria-hidden="onlyShowMain"
-  >
-    {{ title }}
-  </div>
+  <Transition name="menu">
+    <div v-show="!onlyShowMain" class="y-key-wrap__title">
+      {{ title }}
+    </div>
+  </Transition>
 </template>
 <style lang="scss">
 .y-key-wrap {
